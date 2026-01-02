@@ -3,3 +3,4 @@ dist/
 images/
 input/
 old_images/
+__pycache__/
