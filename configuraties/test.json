@@ -1,0 +1,13 @@
+{
+  "input_file_name": "C:/Users/31616/Documents/ProgrammingProjects/KorporaTermenPlaatjes/input/test.xlsx",
+  "file_has_header": "ja",
+  "column_name": "Term",
+  "width": 591,
+  "height": 591,
+  "background_color": "#e6e6e6",
+  "font": "arialbd.ttf",
+  "font_size": 64,
+  "margin": 30,
+  "types": [],
+  "column_letter": "B"
+}
