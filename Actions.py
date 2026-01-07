@@ -7,13 +7,16 @@ from random import random
 from time import sleep
 from tkinter import filedialog
 
+import numpy as np
 import pandas
+from openpyxl.reader.excel import load_workbook
 
 import Constants
 from Constants import Acties
 from CreateInputConfig import modify_config, create_new_config, save_config
 from CreatePicture import create_picture, create_picture_test
 from LoadTerms import load_terms
+from RulesConfig import get_all_colors_in_column
 from Singleton import app
 from openpyxl.utils import get_column_letter
 
@@ -57,8 +60,10 @@ async def test_create_config_file_name_found_cb(config_name):
     await prompt_input_input_file_new()
     #input file name
 
+
 async def config_state_machine():
     state_machine = app.get().ui.getConfigStateMachine()
+    print(app.get().ui.activeConfig)
     if "input_file_name" not in state_machine:
         await prompt_input_input_file_new()
     elif "file_has_header" not in state_machine:
@@ -87,22 +92,109 @@ async def config_state_machine():
         save_config(app.get().ui.activeConfig, app.get().ui.activeConfigName)
         await listActions()
 
+
+async def config_type_state_machine():
+    state_machine = app.get().ui.getTypeStateMachine()
+    if "name" not in state_machine:
+        await prompt_input_type_name()
+    elif "generated_image_text_color" not in state_machine:
+        await prompt_input_type_text_color()
+    elif "method" not in state_machine:
+        await prompt_input_type_method()
+    elif "column" not in state_machine:
+        await prompt_input_type_column()
+    elif "excel_file_cell_color" not in state_machine:
+        await prompt_input_type_cell_color()
+    else:
+        app.get().ui.setConfigType()
+        print(app.get().ui.activeConfig)
+        await config_state_machine()
+
+async def prompt_input_type_column():
+    await app.get().ui.EmptyScreen()
+    config = app.get().ui.getActiveConfig()
+    df = pandas.read_excel(config["input_file_name"])
+    app.get().ui.setList("Welke kolom bevat de kleur?", df.columns, prompt_input_type_column_cb)
+    await app.get().ui.refreshScreen()
+
+async def prompt_input_type_cell_color():
+    await app.get().ui.EmptyScreen()
+    config = app.get().ui.getActiveConfig()
+    configType = app.get().ui.getNewConfigType()
+    wb = load_workbook(config["input_file_name"])
+    ws = wb.active
+
+    column = configType["column"]  # column to scan
+    all_colors = get_all_colors_in_column(ws, column, wb, config["input_file_name"])
+    all_colors_string = convert_excel_colors_to_string(all_colors)
+    app.get().ui.setList("Welke kleur hoort bij dit type?", all_colors_string, prompt_input_type_cell_color_cb)
+    await app.get().ui.refreshScreen()
+
+def convert_excel_colors_to_string(list_of_color_tuples):
+    return [f"{value}. {ctype}" for value, ctype in list_of_color_tuples]
+
+async def prompt_input_type_method():
+    await app.get().ui.EmptyScreen()
+    app.get().ui.setList("Wil je bepalen via celkleur of celinhoud, of iets bij dit type hoort?", ["celkleur", "celinhoud"], prompt_input_type_method_cb)
+    await app.get().ui.refreshScreen()
+
+async def prompt_input_type_text_color():
+    await app.get().ui.EmptyScreen()
+    app.get().ui.setInput("Wat moet de tekstkleur zijn van dit type? Type de gewenste kleur als hexstring (bijv: \"#673489\")", prompt_input_type_text_color_cb)
+    await app.get().ui.refreshScreen()
+
 async def prompt_input_type_name():
-    print("blub")
+    await app.get().ui.EmptyScreen()
+    app.get().ui.setInput("Wat is de naam van dit type?", prompt_input_type_name_cb)
+    await app.get().ui.refreshScreen()
+
+async def prompt_input_type_column_cb(user_input):
+    config = app.get().ui.getActiveConfig()
+    df = pandas.read_excel(config["input_file_name"])
+    columnIndex = int(np.where(df.columns.values == user_input)[0][0])
+    app.get().ui.setConfigTypeField("column", columnIndex)
+    await config_type_state_machine()
+
+async def prompt_input_type_cell_color_cb(user_input):
+    config = app.get().ui.getActiveConfig()
+    configType = app.get().ui.getNewConfigType()
+    wb = load_workbook(config["input_file_name"])
+    ws = wb.active
+
+    column = configType["column"]  # column to scan
+    all_colors = get_all_colors_in_column(ws, column, wb, config["input_file_name"])
+    all_colors_string = convert_excel_colors_to_string(all_colors)
+    idx = all_colors_string.index(user_input)
+
+    app.get().ui.setConfigTypeField("excel_file_cell_color", all_colors[idx][1])
+    app.get().ui.setConfigTypeField("excel_file_color_type", all_colors[idx][0])
+    await config_type_state_machine()
+
+async def prompt_input_type_method_cb(user_input):
+    app.get().ui.setConfigTypeField("method", user_input)
+    await config_type_state_machine()
+
+async def prompt_input_type_name_cb(user_input):
+    app.get().ui.setConfigTypeField("name", user_input)
+    await config_type_state_machine()
+
+async def prompt_input_type_text_color_cb(user_input):
+    app.get().ui.setConfigTypeField("generated_image_text_color", user_input)
+    await config_type_state_machine()
 
 
 async def prompt_input_types():
     await app.get().ui.EmptyScreen()
     list_options = ["Nieuw type toevoegen", "Doorgaan naar volgende stap"]
     app.get().ui.setList("Een type zorgt ervoor dat bepaalde groepen, bepaalde tekstkleuren krijgen", list_options, prompt_input_types_cb)
-
+    print(app.get().ui.activeConfig)
     await app.get().ui.refreshScreen()
 
 async def prompt_input_types_cb(user_input):
     if user_input == "Nieuw type toevoegen":
         await prompt_input_type_name()
     elif user_input == "Doorgaan naar volgende stap":
-        app.get().ui.setActiveConfigField("types", [])
+        app.get().ui.setActiveConfigField("types")
         await config_state_machine()
 
 async def prompt_input_margin():

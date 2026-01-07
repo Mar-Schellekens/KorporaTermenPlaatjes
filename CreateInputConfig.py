@@ -80,7 +80,8 @@ def load_config(cfg):
         print("Configuratie bestand bestaat niet")
 
 def save_config(config, config_name):
-    config_name = add_base_path(config_name)
+    config_dir = add_base_path(Constants.CONFIG_FOLDER)
+    config_name = os.path.join(config_dir, config_name)
     with open(config_name, "w") as f:
         json.dump(config, f, indent=2)
     print(f"Configuratie opgeslagen onder {config_name}")

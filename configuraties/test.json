@@ -8,6 +8,14 @@
   "font": "arialbd.ttf",
   "font_size": 64,
   "margin": 30,
-  "types": [],
+  "types": [
+    {
+      "name": "blub",
+      "generated_image_text_color": "#aabbcc",
+      "method": "celkleur",
+      "column": 1,
+      "excel_file_cell_color": "00000000",
+      "excel_file_color_type": "rgb"
+    }],
   "column_letter": "B"
 }

@@ -1,4 +1,5 @@
 import asyncio
+import copy
 from random import random
 
 from textual.app import App, ComposeResult
@@ -41,7 +42,9 @@ class MenuApp(App):
         self.message = None
         self.activeConfigName = None
         self.activeConfig = None
+        self.newConfigType = {}
         self.configStateMachine = {}
+        self.typeStateMachine = {}
         self.callback = None
         self.percentage = None
         self.ShowProgressBar = False
@@ -56,9 +59,23 @@ class MenuApp(App):
     def getActiveConfig(self):
         return self.activeConfig
 
-    def setActiveConfigField(self, field_name, value):
-        self.activeConfig[field_name] = value
+    def getNewConfigType(self):
+        return self.newConfigType
+
+    def setConfigType(self):
+        if "types" not in self.activeConfig:
+            self.activeConfig["types"] = []
+        self.activeConfig["types"].append(copy.deepcopy(self.newConfigType))
+        print("blub")
+
+    def setActiveConfigField(self, field_name, value=None):
+        if value is not None:
+            self.activeConfig[field_name] = value
         self.configStateMachine[field_name] = True
+
+    def setConfigTypeField(self, field_name, value):
+        self.newConfigType[field_name] = value
+        self.typeStateMachine[field_name] = True
 
     def setConfigStateMachine(self, name):
         #Could we make this private, and let all cals go through setActiveConfigField?
@@ -66,6 +83,9 @@ class MenuApp(App):
 
     def getConfigStateMachine(self):
         return self.configStateMachine
+
+    def getTypeStateMachine(self):
+        return self.typeStateMachine
 
     def setInput(self, prompt, callback):
         self.inputPrompt = prompt
