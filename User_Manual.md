@@ -1,1 +1,5 @@
 Soms word een woord lelijk opgeknipt omdat iets niet als een woord wordt herkend. Dan kan het helpen om een woord in 'wordlist_user.txt' toe te voegen. 
+
+PROGRAMMING NOTES:
+Genereer exe:
+pyinstaller KorporaTermenPlaatjes.spec
