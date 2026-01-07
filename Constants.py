@@ -21,11 +21,11 @@ class Config(StrEnum):
     MARGIN = "margin"
 
 class Acties(StrEnum):
-    MAAK_NIEUWE_CONFIG = "Maak een nieuwe configuratie."
-    LAAD_BESTAANDE_CONFIG = "Laad bestaande configuratie in."
-    EXIT = "Sluit programma af."
-    VERANDER_CONFIG = "Verander de actieve configuratie."
+    MAAK_NIEUWE_CONFIG = "Maak een compleet nieuwe configuratie."
+    VERANDER_CONFIG = "Maak een nieuwe configuratie op basis van actieve configuratie"
+    LAAD_BESTAANDE_CONFIG = "Laad bestaande configuratie in als actieve configuratie."
     GENEREER_PLAATJES = "Genereer plaatjes van de termen, op basis van actieve configuratie."
+    EXIT = "Sluit programma af."
 
 
 CONFIG_FOLDER = "configuraties"

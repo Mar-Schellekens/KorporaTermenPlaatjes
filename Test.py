@@ -1,7 +1,7 @@
 import asyncio
 from time import sleep
 
-from TestConsole import MenuApp
+from View import MenuApp
 
 menuApp = MenuApp()
 

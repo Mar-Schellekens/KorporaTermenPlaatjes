@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+
+
 def let_user_choose_actie(acties):
     for i, actie in enumerate(acties, start=1):
         print(f"{i}. {str(actie)}", "")
@@ -12,3 +16,10 @@ def let_user_choose_actie(acties):
         print("Invalide keuze. Probeer opnieuw.")
 
     return actie
+
+def add_base_path(relative_path: str) -> Path:
+    if getattr(sys, 'frozen', False):
+        base_path = Path(sys._MEIPASS) #ignore warning
+    else:
+        base_path = Path(__file__).parent
+    return base_path / relative_path

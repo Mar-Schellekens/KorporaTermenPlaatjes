@@ -17,12 +17,19 @@ from LoadTerms import load_terms
 from Singleton import app
 from openpyxl.utils import get_column_letter
 
+from Utils import add_base_path
+
 
 async def listActions():
-    actions = [Acties.MAAK_NIEUWE_CONFIG, Acties.LAAD_BESTAANDE_CONFIG]
+    actions = [Acties.MAAK_NIEUWE_CONFIG]
 
     if app.get().input_config_file_name is not None:
-        actions.extend([Acties.VERANDER_CONFIG, Acties.GENEREER_PLAATJES])
+        actions.append(Acties.VERANDER_CONFIG)
+
+    actions.append(Acties.LAAD_BESTAANDE_CONFIG)
+
+    if app.get().input_config_file_name is not None:
+        actions.append(Acties.GENEREER_PLAATJES)
 
     actions.append(Acties.EXIT)
 
@@ -44,9 +51,6 @@ async def test_create_config_file_name_found_cb(config_name):
     cfg = {}
     if not config_name.lower().endswith(".json"):
         config_name += ".json"
-    base = os.path.dirname(sys.executable)
-    config_folder = os.path.join(base, Constants.CONFIG_FOLDER)
-    config_name = os.path.join(config_folder, config_name)
     save_config(cfg, config_name)
     app.get().ui.setActiveConfigName(config_name)
     app.get().ui.setActiveConfig(cfg)
@@ -66,7 +70,7 @@ async def config_state_machine():
     elif "height" not in state_machine:
         await prompt_input_height_new("Type de gewenste hoogte van het gegenereerde plaatje in pixels")
     elif "background_color" not in state_machine:
-        await prompt_input_background_color("Type de geweneste kleur van de achtergrond van het plaatje als hexstring (bijv: \"#673489\"")
+        await prompt_input_background_color("Type de gewenste kleur van de achtergrond van het plaatje als hexstring (bijv: \"#673489\"")
     elif "font" not in state_machine:
         await prompt_input_font()
     elif "font_size" not in state_machine:
@@ -171,16 +175,11 @@ async def prompt_input_termen_new_cb(user_input):
 
 async def prompt_input_input_file_new(default = None):
     await app.get().ui.EmptyScreen()
-
-    if default is not None:
-        app.get().ui.setInput(f"{"De bestandsnaam van het excel bestand om de plaatjes te genereren. Type \"wijzig\" om te veranderen, of druk op Enter om huidige te behouden"} [huidig: {default}]: ", prompt_input_file_new_cb)
-    else:
-        app.get().ui.setInput("Kies het excel bestand om de plaatjes te genereren. Druk op Enter om de verkenner te openen", prompt_input_file_new_cb)
-        value = "wijzig"
-
+    app.get().ui.setButtonInput("Kies het excel bestand om de plaatjes te genereren.", "Open de verkenner", prompt_input_file_new_cb)
+    #app.get().ui.setInput("Kies het excel bestand om de plaatjes te genereren. Druk op Enter om de verkenner te openen", prompt_input_file_new_cb)
     await app.get().ui.refreshScreen()
 
-async def prompt_input_file_new_cb(user_input):
+async def prompt_input_file_new_cb():
     # Open file picker dialog
     file_path = filedialog.askopenfilename(
         title="Kies een bestand",
@@ -201,9 +200,8 @@ async def prompt_input_header_new_cb(user_input):
 
 
 async def let_user_choose_config():
-    base = os.path.dirname(sys.executable)
-    base = os.path.join(base, Constants.CONFIG_FOLDER)
-    cfg_files = glob.glob(os.path.join(base, "*.json"))
+    config_folder = add_base_path(Constants.CONFIG_FOLDER)
+    cfg_files = glob.glob(os.path.join(config_folder, "*.json"))
 
     if len(cfg_files) == 0:
         app.get().ui.setMessage("Er bestaan nog geen configuratie bestanden.")

@@ -1,4 +1,4 @@
-import TestConsole
+import View
 
 
 class Singleton:
@@ -42,7 +42,7 @@ class Singleton:
 @Singleton
 class app:
    def __init__(self):
-       self.ui = TestConsole.MenuApp()
+       self.ui = View.MenuApp()
        self.input_config_file_name = None
 
 f = () # Error, this isn't how you get the instance of a singleton

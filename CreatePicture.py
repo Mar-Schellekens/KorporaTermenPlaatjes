@@ -13,6 +13,7 @@ from Term import Term
 import string
 from wordfreq import zipf_frequency
 import SplitCompounds
+from Utils import add_base_path
 
 dictionary = pyphen.Pyphen(lang='nl_NL')
 # --- Configuration ---
@@ -192,10 +193,9 @@ def create_picture(term:Term, style_cfg, app):
     draw.multiline_text((x, y), text, fill=term.text_color, font=font, anchor="mm", align="center")
 
     # Save as JPG
-    base = os.path.dirname(sys.executable)
-    base = os.path.join(base, output_path)
+    image_folder = add_base_path(output_path)
     filename = term.text.replace("/", "_").replace("?", "_")
-    image.save(base+filename + ".jpg", "JPEG")
+    image.save(os.path.join(image_folder, filename) + ".jpg", "JPEG")
     #app.get().ui.setMessage(f"Image saved as {output_path+filename + ".jpg"}")
     #print(f"Image saved as {output_path+filename + ".jpg"}")
 

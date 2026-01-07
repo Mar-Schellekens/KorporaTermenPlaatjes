@@ -10,7 +10,7 @@ from CreateInputConfig import modify_config, ask_modify_config, print_config, cr
 from CreatePicture import create_picture
 from LoadTerms import load_terms
 from Singleton import app
-from TestConsole import MenuApp
+from View import MenuApp
 
 
 

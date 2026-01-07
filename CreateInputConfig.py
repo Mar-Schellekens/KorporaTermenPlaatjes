@@ -14,7 +14,7 @@ import re
 
 from ColorConfig import edit_colors
 from Singleton import app
-from Utils import let_user_choose_actie
+from Utils import let_user_choose_actie, add_base_path
 
 
 # defaultConfig = defaultdict(lambda: None, {
@@ -80,6 +80,7 @@ def load_config(cfg):
         print("Configuratie bestand bestaat niet")
 
 def save_config(config, config_name):
+    config_name = add_base_path(config_name)
     with open(config_name, "w") as f:
         json.dump(config, f, indent=2)
     print(f"Configuratie opgeslagen onder {config_name}")

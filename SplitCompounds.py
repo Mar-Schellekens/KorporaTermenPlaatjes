@@ -2,15 +2,19 @@ import os
 import sys
 from itertools import permutations
 
+from ColorConfig import add_or_modify_type
+from Utils import add_base_path
+
 import pyphen
 from wordfreq import zipf_frequency
 
 #dictionary = pyphen.Pyphen(lang='nl_NL')
-base = os.path.dirname(sys.executable)
-with open(os.path.join(base, "wordlist.txt"), "r", encoding="utf-8") as f:
+wordlist = add_base_path("wordlist.txt")
+wordlist_user = add_base_path("wordlist_user.txt")
+with open(wordlist, "r", encoding="utf-8") as f:
     dictionary = f.read()
     dictionary = dictionary.split("\n")
-with open(os.path.join(base, "wordlist_user.txt"), "r", encoding="utf-8") as f:
+with open(wordlist_user, "r", encoding="utf-8") as f:
     dictionary_user = f.read()
     dictionary.extend(dictionary_user.split("\n"))
 

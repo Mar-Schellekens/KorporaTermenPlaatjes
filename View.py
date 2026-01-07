@@ -3,7 +3,7 @@ from random import random
 
 from textual.app import App, ComposeResult
 from textual.reactive import reactive
-from textual.widgets import Static, ListView, ListItem, Label, ProgressBar, RichLog, Input
+from textual.widgets import Static, ListView, ListItem, Label, ProgressBar, RichLog, Input, Button
 from textual.screen import Screen
 from textual import events
 
@@ -26,10 +26,6 @@ class MessageScreen(Screen):
         if event.key.lower() == "q":
             await self.app.action_quit()
 
-
-
-
-
 class MenuApp(App):
     progress_value = reactive(0)
     """A simple Textual app with 4 selectable options."""
@@ -40,6 +36,7 @@ class MenuApp(App):
         self.inputPrompt = None
         self.numberInputPrompt = None
         self.inputCallback = None
+        self.buttonInputCallback = None
         self.list = None
         self.message = None
         self.activeConfigName = None
@@ -48,6 +45,7 @@ class MenuApp(App):
         self.callback = None
         self.percentage = None
         self.ShowProgressBar = False
+        self.buttonText = None
 
     def setActiveConfigName(self, config):
         self.activeConfigName = config
@@ -77,6 +75,11 @@ class MenuApp(App):
         self.numberInputPrompt = prompt
         self.inputCallback = callback
 
+    def setButtonInput(self, prompt, button_text, callback):
+        self.buttonText = button_text
+        self.prompt = prompt
+        self.buttonInputCallback = callback
+
     def setList(self, prompt, list, callback):
         self.prompt = prompt
         self.list = list
@@ -93,6 +96,10 @@ class MenuApp(App):
         if self.inputCallback is not None:
             await self.inputCallback(user_text)
 
+    async def on_button_pressed(self, event: Button.Pressed):
+        if self.buttonInputCallback is not None:
+            await self.buttonInputCallback()
+
     async def EmptyScreen(self):
         self.prompt = None
         self.list = None
@@ -100,6 +107,9 @@ class MenuApp(App):
         self.inputPrompt = None
         self.numberInputPrompt = None
         self.inputCallback = None
+        self.buttonInputCallback = None
+        self.buttonText = None
+
         await self.recompose()
 
     async def refreshScreen(self):
@@ -139,6 +149,9 @@ class MenuApp(App):
             yield Label(self.numberInputPrompt)
             yield NumberInput(placeholder="0", id="input")
             yield Label("", id="output")
+        if self.buttonText is not None:
+            yield Label(self.prompt)
+            yield Button(self.buttonText, id="button")
 
     async def increment(self, value) -> None:
         self.query_one(ProgressBar).advance(value)
