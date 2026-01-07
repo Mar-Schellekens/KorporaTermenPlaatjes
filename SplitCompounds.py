@@ -1,13 +1,16 @@
+import os
+import sys
 from itertools import permutations
 
 import pyphen
 from wordfreq import zipf_frequency
 
 #dictionary = pyphen.Pyphen(lang='nl_NL')
-with open("wordlist.txt", "r", encoding="utf-8") as f:
+base = os.path.dirname(sys.executable)
+with open(os.path.join(base, "wordlist.txt"), "r", encoding="utf-8") as f:
     dictionary = f.read()
     dictionary = dictionary.split("\n")
-with open("wordlist_user.txt", "r", encoding="utf-8") as f:
+with open(os.path.join(base, "wordlist_user.txt"), "r", encoding="utf-8") as f:
     dictionary_user = f.read()
     dictionary.extend(dictionary_user.split("\n"))
 

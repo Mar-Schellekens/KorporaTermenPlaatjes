@@ -2,6 +2,7 @@ import asyncio
 import glob
 import json
 import os
+import sys
 from random import random
 from time import sleep
 from tkinter import filedialog
@@ -43,7 +44,9 @@ async def test_create_config_file_name_found_cb(config_name):
     cfg = {}
     if not config_name.lower().endswith(".json"):
         config_name += ".json"
-    config_name = os.path.join(Constants.CONFIG_FOLDER, config_name)
+    base = os.path.dirname(sys.executable)
+    config_folder = os.path.join(base, Constants.CONFIG_FOLDER)
+    config_name = os.path.join(config_folder, config_name)
     save_config(cfg, config_name)
     app.get().ui.setActiveConfigName(config_name)
     app.get().ui.setActiveConfig(cfg)
@@ -198,7 +201,9 @@ async def prompt_input_header_new_cb(user_input):
 
 
 async def let_user_choose_config():
-    cfg_files = glob.glob(os.path.join(Constants.CONFIG_FOLDER, "*.json"))
+    base = os.path.dirname(sys.executable)
+    base = os.path.join(base, Constants.CONFIG_FOLDER)
+    cfg_files = glob.glob(os.path.join(base, "*.json"))
 
     if len(cfg_files) == 0:
         app.get().ui.setMessage("Er bestaan nog geen configuratie bestanden.")

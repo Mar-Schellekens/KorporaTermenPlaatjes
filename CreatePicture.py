@@ -1,5 +1,7 @@
 import asyncio
+import os
 import re
+import sys
 from random import random
 from time import sleep
 
@@ -190,8 +192,10 @@ def create_picture(term:Term, style_cfg, app):
     draw.multiline_text((x, y), text, fill=term.text_color, font=font, anchor="mm", align="center")
 
     # Save as JPG
+    base = os.path.dirname(sys.executable)
+    base = os.path.join(base, output_path)
     filename = term.text.replace("/", "_").replace("?", "_")
-    image.save(output_path+filename + ".jpg", "JPEG")
+    image.save(base+filename + ".jpg", "JPEG")
     #app.get().ui.setMessage(f"Image saved as {output_path+filename + ".jpg"}")
     #print(f"Image saved as {output_path+filename + ".jpg"}")
 
