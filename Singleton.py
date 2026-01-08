@@ -1,6 +1,3 @@
-import View
-
-
 class Singleton:
     """
     A non-thread-safe helper class to ease implementing singletons.
@@ -39,11 +36,6 @@ class Singleton:
     def __instancecheck__(self, inst):
         return isinstance(inst, self._decorated)
 
-@Singleton
-class app:
-   def __init__(self):
-       self.ui = View.MenuApp()
-       self.input_config_file_name = None
 
 f = () # Error, this isn't how you get the instance of a singleton
 

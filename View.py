@@ -1,10 +1,10 @@
-import copy
 from textual.app import App, ComposeResult
 from textual.reactive import reactive
 from textual.widgets import Static, ListView, ListItem, Label, ProgressBar, RichLog, Input, Button
 from textual.screen import Screen
 from textual import events
-
+from Model import Model
+from Singleton import Singleton
 
 class NumberInput(Input):
     """Allow only digits."""
@@ -24,7 +24,8 @@ class MessageScreen(Screen):
         if event.key.lower() == "q":
             await self.app.action_quit()
 
-class MenuApp(App):
+@Singleton
+class View(App):
     progress_value = reactive(0)
     """A simple Textual app with 4 selectable options."""
     def __init__(self):
@@ -37,52 +38,10 @@ class MenuApp(App):
         self.buttonInputCallback = None
         self.list = None
         self.message = None
-        self.activeConfigName = None
-        self.activeConfig = None
-        self.newConfigType = {}
-        self.configStateMachine = {}
-        self.typeStateMachine = {}
         self.callback = None
         self.percentage = None
         self.ShowProgressBar = False
         self.buttonText = None
-
-    def setActiveConfigName(self, config):
-        self.activeConfigName = config
-
-    def setActiveConfig(self, config):
-        self.activeConfig = config
-
-    def getActiveConfig(self):
-        return self.activeConfig
-
-    def getNewConfigType(self):
-        return self.newConfigType
-
-    def setConfigType(self):
-        if "types" not in self.activeConfig:
-            self.activeConfig["types"] = []
-        self.activeConfig["types"].append(copy.deepcopy(self.newConfigType))
-        print("blub")
-
-    def setActiveConfigField(self, field_name, value=None):
-        if value is not None:
-            self.activeConfig[field_name] = value
-        self.configStateMachine[field_name] = True
-
-    def setConfigTypeField(self, field_name, value):
-        self.newConfigType[field_name] = value
-        self.typeStateMachine[field_name] = True
-
-    def setConfigStateMachine(self, name):
-        #Could we make this private, and let all cals go through setActiveConfigField?
-        self.configStateMachine[name] = True
-
-    def getConfigStateMachine(self):
-        return self.configStateMachine
-
-    def getTypeStateMachine(self):
-        return self.typeStateMachine
 
     def setInput(self, prompt, callback):
         self.inputPrompt = prompt
@@ -148,8 +107,8 @@ class MenuApp(App):
         #yield Static("Result:", id="result")
         if self.ShowProgressBar:
             yield self.progress
-        if self.activeConfigName is not None:
-            yield Static (f"Actieve configuratie: " + self.activeConfigName, id="config")
+        if Model.get().activeConfigName is not None:
+            yield Static (f"Actieve configuratie: " + Model.get().activeConfigName, id="config")
         if self.message is not None:
             yield Static(self.message, id="result")
         if self.list is not None:
