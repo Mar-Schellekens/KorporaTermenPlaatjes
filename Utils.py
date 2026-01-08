@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+from openpyxl.reader.excel import load_workbook
+
 
 def let_user_choose_actie(acties):
     for i, actie in enumerate(acties, start=1):
@@ -26,3 +28,8 @@ def add_base_path(relative_path: str) -> Path:
 
 def convert_excel_colors_to_string(list_of_color_tuples):
     return [f"{value}. {ctype}" for value, ctype in list_of_color_tuples]
+
+def load_excel_file(file_name):
+    workbook = load_workbook(file_name)
+    worksheet = workbook.active
+    return workbook, worksheet

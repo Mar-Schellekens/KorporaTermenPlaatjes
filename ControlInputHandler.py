@@ -1,110 +1,143 @@
 #This is an interface between control and view, part of the control layer, and should never import ViewInputPrompter to prevent circular import.
 from tkinter import filedialog
+from typing import List
 
 import numpy as np
 import pandas
-from openpyxl.reader.excel import load_workbook
+from Constants import CfgFields, TypesMenu, StateMachines, Validations
 from CreateInputConfig import save_config
 from Model import Model
 from RulesConfig import get_all_colors_in_column
-from Utils import convert_excel_colors_to_string
+from Utils import convert_excel_colors_to_string, load_excel_file
+
 
 class ControlInputHandler:
     def __init__(self, controller):
         self.controller = controller
 
-    async def callback_let_user_choose_config(self, config_name):
-        Model.get().input_config_file_name = config_name
-        await self.controller.listActions()
+    def validation_excel_column(self, user_input):
+        cfg = Model.get().get_active_cfg()
+        df = pandas.read_excel(cfg[CfgFields.INPUT_FILE_NAME])
+        cfg_value = int(np.where(df.columns.values == user_input)[0][0])
+        return True, None, cfg_value
 
-    async def test_create_config_file_name_found_cb(self, config_name):
-        cfg = {}
-        if not config_name.lower().endswith(".json"):
-            config_name += ".json"
-        save_config(cfg, config_name)
-        Model.get().setActiveConfigName(config_name)
-        Model.get().setActiveConfig(cfg)
-        await self.controller.config_state_machine()
 
-    async def prompt_input_type_column_cb(self, user_input):
-        config = Model.get().getActiveConfig()
-        df = pandas.read_excel(config["input_file_name"])
-        columnIndex = int(np.where(df.columns.values == user_input)[0][0])
-        Model.get().setConfigTypeField("column", columnIndex)
-        await self.controller.config_type_state_machine()
+    def validation_color_type(self, user_input):
+        config = Model.get().get_active_cfg()
+        file_name = config[CfgFields.INPUT_FILE_NAME]
+        workbook, worksheet = load_excel_file(file_name)
 
-    async def prompt_input_type_cell_color_cb(self, user_input):
-        config = Model.get().getActiveConfig()
-        configType = Model.get().getNewConfigType()
-        wb = load_workbook(config["input_file_name"])
-        ws = wb.active
-
-        column = configType["column"]  # column to scan
-        all_colors = get_all_colors_in_column(ws, column, wb, config["input_file_name"])
+        # Find the right values using worksheet and user_input
+        config_type = Model.get().get_new_config_type()
+        column = config_type[CfgFields.TYPES_COLUMN]  # column to scan
+        all_colors = get_all_colors_in_column(worksheet, column, workbook)
         all_colors_string = convert_excel_colors_to_string(all_colors)
         idx = all_colors_string.index(user_input)
 
-        Model.get().setConfigTypeField("excel_file_cell_color", all_colors[idx][1])
-        Model.get().setConfigTypeField("excel_file_color_type", all_colors[idx][0])
-        await self.controller.config_type_state_machine()
+        cfg_value_1 = all_colors[idx][0]
+        cfg_value_2 = all_colors[idx][1]
+        return True, None, [cfg_value_1, cfg_value_2]
 
-    async def prompt_input_type_method_cb(self, user_input):
-        Model.get().setConfigTypeField("method", user_input)
-        await self.controller.config_type_state_machine()
 
-    async def prompt_input_type_name_cb(self, user_input):
-        Model.get().setConfigTypeField("name", user_input)
-        await self.controller.config_type_state_machine()
+    async def set_field_in_cfg(self, field, user_input, validation):
+        match validation:
+            case Validations.EXCEL_COLUMN:
+                valid, error, cfg_value = self.validation_excel_column(user_input)
+            case Validations.COLOR_CELL_TYPE:
+                valid, error, cfg_value = self.validation_color_type(user_input)
+            case Validations.TEXT:
+                valid = True
+                cfg_value = user_input
+            case Validations.COLOR:
+                valid = True
+                cfg_value = user_input
+            case Validations.DICT:
+                if isinstance(user_input, dict):
+                    valid = True
+                    cfg_value = user_input
+            case Validations.NUMBER:
+                cfg_value = int(user_input)
+                valid = True
+            case _:
+                valid = False
 
-    async def prompt_input_type_text_color_cb(self, user_input):
-        Model.get().setConfigTypeField("generated_image_text_color", user_input)
-        await self.controller.config_type_state_machine()
+        if valid:
+            if isinstance(cfg_value, list):
+                for f, v in zip(field, cfg_value):
+                    Model.get().set_active_cfg_field(f, v)
+            else:
+                Model.get().set_active_cfg_field(field, cfg_value)
 
-    async def prompt_input_types_cb(self, user_input):
-        if user_input == "Nieuw type toevoegen":
-            await self.controller.config_type_state_machine()
-        elif user_input == "Doorgaan naar volgende stap":
-            Model.get().setActiveConfigField("types")
-            await self.controller.config_state_machine()
+        await self.controller.state_machine()
 
-    async def prompt_input_margin_cb(self, user_input):
-        Model.get().setActiveConfigField("margin", int(user_input))
-        await self.controller.config_state_machine()
 
-    async def prompt_input_font_size_cb(self, user_input):
-        Model.get().setActiveConfigField("font_size", int(user_input))
-        await self.controller.config_state_machine()
+    async def set_active_cfg(self, config_name):
+        Model.get().set_active_cfg_name(config_name)
+        await self.controller.state_machine()
 
-    async def prompt_input_font_cb(self, user_input):
-        Model.get().setActiveConfigField("font", user_input)
-        await self.controller.config_state_machine()
+    async def create_empty_cfg(self, name):
+        cfg = {}
+        if not name.lower().endswith(".json"):
+            name += ".json"
+        save_config(cfg, name)
+        Model.get().set_active_cfg_name(name)
+        Model.get().set_active_cfg(cfg)
+        await self.controller.state_machine()
 
-    async def prompt_input_background_color_cb(self, user_input):
-        Model.get().setActiveConfigField("background_color", user_input)
-        await self.controller.config_state_machine()
+    async def set_type_column_field_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.TYPES_COLUMN, user_input, Validations.EXCEL_COLUMN)
 
-    async def prompt_input_width_new_cb(self, user_input):
-        Model.get().setActiveConfigField("width", int(user_input))
-        await self.controller.config_state_machine()
+    async def set_type_cell_color_type_in_cfg(self, user_input):
+        await self.set_field_in_cfg([CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE, CfgFields.TYPES_EXCEL_FILE_CELL_COLOR], user_input, Validations.COLOR_CELL_TYPE)
 
-    async def prompt_input_height_new_cb(self, user_input):
-        Model.get().setActiveConfigField("height", int(user_input))
-        await self.controller.config_state_machine()
+    async def set_type_method_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.TYPES_METHOD, user_input, Validations.TEXT)
 
-    async def prompt_input_termen_new_cb(self, user_input):
-        Model.get().setActiveConfigField("column_name", user_input)
-        await self.controller.config_state_machine()
+    async def set_type_name_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.TYPES_NAME, user_input, Validations.TEXT)
 
-    async def prompt_input_file_new_cb(self):
+    async def set_type_text_color_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR, user_input, Validations.COLOR)
+
+    async def handle_new_cfg_type_input(self, user_input):
+        if user_input == TypesMenu.ADD:
+            Model.get().current_state_machine = StateMachines.CFG_TYPE
+        elif user_input == TypesMenu.CONT:
+            Model.get().set_done_adding_types()
+
+        await self.controller.state_machine()
+
+    async def set_margin_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.MARGIN, user_input, Validations.NUMBER)
+
+    async def set_font_size_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.FONT_SIZE, user_input, Validations.NUMBER)
+
+    async def set_font_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.FONT, user_input, Validations.TEXT)
+
+    async def set_bg_color_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.BACKGROUND_COLOR, user_input, Validations.COLOR)
+
+    async def set_width_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.WIDTH, user_input, Validations.NUMBER)
+
+    async def set_height_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.HEIGHT, user_input, Validations.NUMBER)
+
+    async def set_column_name_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.COLUMN_NAME, user_input, Validations.TEXT)
+
+    #Secret little bit of View code going on here ;)
+    async def let_user_pick_excel_input(self):
         # Open file picker dialog
         file_path = filedialog.askopenfilename(
             title="Kies een bestand",
             filetypes=(("Excel files", "*.xlsx *.xls"), ("All files", "*.*"))
         )
-        Model.get().setActiveConfigField("input_file_name", file_path)
-        await self.controller.config_state_machine()
+        await self.set_field_in_cfg(CfgFields.INPUT_FILE_NAME, file_path, Validations.TEXT)
 
-    async def prompt_input_header_new_cb(self, user_input):
-        Model.get().setActiveConfigField("file_has_header", user_input)
-        await self.controller.config_state_machine()
+
+    async def set_header_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.FILE_HAS_HEADER, user_input, Validations.TEXT)
 

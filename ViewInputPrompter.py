@@ -20,20 +20,20 @@ class ViewInputPrompter:
 
     async def prompt_input_type_column(self, cb):
         await View.get().EmptyScreen()
-        config = Model.get().getActiveConfig()
+        config = Model.get().get_active_cfg()
         df = pandas.read_excel(config["input_file_name"])
         View.get().setList("Welke kolom bevat de kleur?", df.columns, cb)
         await View.get().refreshScreen()
 
     async def prompt_input_type_cell_color(self, cb):
         await View.get().EmptyScreen()
-        config = Model.get().getActiveConfig()
-        configType = Model.get().getNewConfigType()
+        config = Model.get().get_active_cfg()
+        configType = Model.get().get_new_config_type()
         wb = load_workbook(config["input_file_name"])
         ws = wb.active
 
         column = configType["column"]  # column to scan
-        all_colors = get_all_colors_in_column(ws, column, wb, config["input_file_name"])
+        all_colors = get_all_colors_in_column(ws, column, wb)
         all_colors_string = convert_excel_colors_to_string(all_colors)
         View.get().setList("Welke kleur hoort bij dit type?", all_colors_string, cb)
         await View.get().refreshScreen()
@@ -90,7 +90,7 @@ class ViewInputPrompter:
         await View.get().refreshScreen()
 
     async def prompt_input_termen_new(self, cb):
-        cfg = Model.get().getActiveConfig()
+        cfg = Model.get().get_active_cfg()
         df = pandas.read_excel(cfg["input_file_name"])
 
         await View.get().EmptyScreen()

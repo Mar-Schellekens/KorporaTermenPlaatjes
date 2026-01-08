@@ -10,7 +10,7 @@ def get_cell_color(cell, workbook):
         return "theme", str(color.theme)
     return None
 
-def get_all_colors_in_column(sheet, col_index, workbook, excel_file_name):
+def get_all_colors_in_column(sheet, col_index, workbook):
     """Returns a set of all unique colors in a column."""
     colors = []
 

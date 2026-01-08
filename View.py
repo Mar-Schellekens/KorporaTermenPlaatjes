@@ -111,8 +111,8 @@ class View(App):
         #yield Static("Result:", id="result")
         if self.ShowProgressBar:
             yield self.progress
-        if Model.get().activeConfigName is not None:
-            yield Static (f"Actieve configuratie: " + Model.get().activeConfigName, id="config")
+        if Model.get().active_config_name is not None:
+            yield Static (f"Actieve configuratie: " + Model.get().active_config_name, id="config")
         if self.message is not None:
             yield Static(self.message, id="result")
         if self.list is not None:
@@ -143,7 +143,6 @@ class View(App):
 
 
     async def on_mount(self) -> None:
-
         # Focus the ListView so keyboard navigation works
         self.query_one(ListView).focus()
 

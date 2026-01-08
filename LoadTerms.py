@@ -1,28 +1,28 @@
 import pandas
 from openpyxl import load_workbook
-from Constants import Config
+from Constants import CfgFields
 from Term import Term
 
 def classify_cell(cell, types):
     for type in types:
-        column_index = type[Config.TYPES_COLUMN]
-        if type[Config.TYPES_METHOD] == "celkleur":
-            if type[Config.TYPES_EXCEL_FILE_COLOR_TYPE] == "theme":
-                if str(cell[column_index].fill.start_color.theme) == type[Config.TYPES_EXCEL_FILE_CELL_COLOR]:
-                    return type[Config.TYPES_GENERATED_IMAGE_TEXT_COLOR]
-            elif type[Config.TYPES_EXCEL_FILE_COLOR_TYPE] == "rgb":
-                if cell[column_index].fill.start_color.rgb == type[Config.TYPES_EXCEL_FILE_CELL_COLOR]:
-                    return type[Config.TYPES_GENERATED_IMAGE_TEXT_COLOR]
+        column_index = type[CfgFields.TYPES_COLUMN]
+        if type[CfgFields.TYPES_METHOD] == "celkleur":
+            if type[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "theme":
+                if str(cell[column_index].fill.start_color.theme) == type[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
+                    return type[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
+            elif type[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "rgb":
+                if cell[column_index].fill.start_color.rgb == type[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
+                    return type[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
     return "#000000"
 
 def load_terms(cfg):
-    df = pandas.read_excel(cfg[Config.INPUT_FILE_NAME])
-    termen = df[cfg[Config.COLUMN_NAME]].values
-    wb = load_workbook(cfg[Config.INPUT_FILE_NAME])
+    df = pandas.read_excel(cfg[CfgFields.INPUT_FILE_NAME])
+    termen = df[cfg[CfgFields.COLUMN_NAME]].values
+    wb = load_workbook(cfg[CfgFields.INPUT_FILE_NAME])
     ws = wb.active
-    colors = [classify_cell(row, cfg[Config.TYPES]) for row in ws.iter_rows()]
+    colors = [classify_cell(row, cfg[CfgFields.TYPES]) for row in ws.iter_rows()]
 
-    if cfg[Config.FILE_HAS_HEADER]:
+    if cfg[CfgFields.FILE_HAS_HEADER]:
         colors = colors[1:] #Remove header row
 
     termObjects = []
