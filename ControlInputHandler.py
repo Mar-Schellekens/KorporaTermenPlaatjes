@@ -10,7 +10,6 @@ from Model import Model
 from RulesConfig import get_all_colors_in_column
 from Utils import convert_excel_colors_to_string, load_excel_file
 
-
 class ControlInputHandler:
     def __init__(self, controller):
         self.controller = controller
@@ -84,6 +83,23 @@ class ControlInputHandler:
         Model.get().set_active_cfg(cfg)
         await self.controller.state_machine()
 
+    async def handle_new_cfg_type_input(self, user_input):
+        if user_input == TypesMenu.ADD:
+            Model.get().current_state_machine = StateMachines.CFG_TYPE
+        elif user_input == TypesMenu.CONT:
+            Model.get().set_done_adding_types()
+
+        await self.controller.state_machine()
+
+    #Secret little bit of View code going on here ;)
+    async def let_user_pick_excel_input(self):
+        # Open file picker dialog
+        file_path = filedialog.askopenfilename(
+            title="Kies een bestand",
+            filetypes=(("Excel files", "*.xlsx *.xls"), ("All files", "*.*"))
+        )
+        await self.set_field_in_cfg(CfgFields.INPUT_FILE_NAME, file_path, Validations.TEXT)
+
     async def set_type_column_field_in_cfg(self, user_input):
         await self.set_field_in_cfg(CfgFields.TYPES_COLUMN, user_input, Validations.EXCEL_COLUMN)
 
@@ -98,14 +114,6 @@ class ControlInputHandler:
 
     async def set_type_text_color_in_cfg(self, user_input):
         await self.set_field_in_cfg(CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR, user_input, Validations.COLOR)
-
-    async def handle_new_cfg_type_input(self, user_input):
-        if user_input == TypesMenu.ADD:
-            Model.get().current_state_machine = StateMachines.CFG_TYPE
-        elif user_input == TypesMenu.CONT:
-            Model.get().set_done_adding_types()
-
-        await self.controller.state_machine()
 
     async def set_margin_in_cfg(self, user_input):
         await self.set_field_in_cfg(CfgFields.MARGIN, user_input, Validations.NUMBER)
@@ -127,16 +135,6 @@ class ControlInputHandler:
 
     async def set_column_name_in_cfg(self, user_input):
         await self.set_field_in_cfg(CfgFields.COLUMN_NAME, user_input, Validations.TEXT)
-
-    #Secret little bit of View code going on here ;)
-    async def let_user_pick_excel_input(self):
-        # Open file picker dialog
-        file_path = filedialog.askopenfilename(
-            title="Kies een bestand",
-            filetypes=(("Excel files", "*.xlsx *.xls"), ("All files", "*.*"))
-        )
-        await self.set_field_in_cfg(CfgFields.INPUT_FILE_NAME, file_path, Validations.TEXT)
-
 
     async def set_header_in_cfg(self, user_input):
         await self.set_field_in_cfg(CfgFields.FILE_HAS_HEADER, user_input, Validations.TEXT)

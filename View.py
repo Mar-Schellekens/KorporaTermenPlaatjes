@@ -44,6 +44,9 @@ class View(App):
         self.percentage = None
         self.ShowProgressBar = False
         self.buttonText = None
+        self.input_field_name = None
+        self.set_field_cb = None
+
 
     def setInput(self, prompt, callback):
         self.inputPrompt = prompt
@@ -89,6 +92,8 @@ class View(App):
         self.buttonInputCallback = None
         self.buttonText = None
         self.ShowProgressBar = False
+        self.input_field_name = None
+        self.set_field_cb = None
 
         await self.recompose()
 
