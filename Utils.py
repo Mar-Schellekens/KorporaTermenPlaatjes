@@ -23,3 +23,6 @@ def add_base_path(relative_path: str) -> Path:
     else:
         base_path = Path(__file__).parent
     return base_path / relative_path
+
+def convert_excel_colors_to_string(list_of_color_tuples):
+    return [f"{value}. {ctype}" for value, ctype in list_of_color_tuples]

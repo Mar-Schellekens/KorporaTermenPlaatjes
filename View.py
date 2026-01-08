@@ -1,3 +1,5 @@
+import asyncio
+
 from textual.app import App, ComposeResult
 from textual.reactive import reactive
 from textual.widgets import Static, ListView, ListItem, Label, ProgressBar, RichLog, Input, Button
@@ -64,8 +66,9 @@ class View(App):
     def setMessage(self, message):
         self.message = message
 
-    def setShowProgressBar(self, show):
+    def setShowProgressBar(self, show, cb):
         self.ShowProgressBar = show
+        self.callback = cb
 
     async def on_input_submitted(self, event:Input.Submitted):
         user_text = event.value
@@ -85,6 +88,7 @@ class View(App):
         self.inputCallback = None
         self.buttonInputCallback = None
         self.buttonText = None
+        self.ShowProgressBar = False
 
         await self.recompose()
 
@@ -129,10 +133,17 @@ class View(App):
             yield Label(self.prompt)
             yield Button(self.buttonText, id="button")
 
-    async def increment(self, value) -> None:
-        self.query_one(ProgressBar).advance(value)
+    async def increment_test(self, percentage, finished=False):
+        if finished:
+            self.progress.update(progress=0)
+            await self.EmptyScreen()
+            await self.callback()
+        else:
+            self.progress.update(progress = percentage)
+
 
     async def on_mount(self) -> None:
+
         # Focus the ListView so keyboard navigation works
         self.query_one(ListView).focus()
 

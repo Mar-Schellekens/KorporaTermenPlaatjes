@@ -45,10 +45,6 @@ def smart_capitalize(text):
             break
     return ' '.join(words)
 
-async def create_picture_test(term, style_cfg, app):
-    await asyncio.sleep(random() * 10)
-    await app.increment()
-
 def split_up_term_test(cfg, term, draw, font):
     max_text_width = cfg["width"] - (cfg["margin"] * 2)
     lines = [smart_capitalize(term.text)]
@@ -95,7 +91,11 @@ def split_up_term_test(cfg, term, draw, font):
     text = "\n".join(lines)
     return text
 
-def create_picture(term:Term, style_cfg, app):
+async def create_picture_async(term, style_cfg):
+    loop = asyncio.get_running_loop()
+    await loop.run_in_executor(None, create_picture, term, style_cfg)
+
+def create_picture(term:Term, style_cfg):
     cfg = style_cfg
     image = Image.new("RGB", (cfg["width"], cfg["height"]), cfg["background_color"])
     draw = ImageDraw.Draw(image)
