@@ -1,92 +1,103 @@
 import asyncio
 import os
-from random import random
 from PIL import Image, ImageDraw, ImageFont
-import pyphen
+
+import Constants
+from Constants import CfgFields
 from Term import Term
 import SplitCompounds
 from Utils import add_base_path
 
-dictionary = pyphen.Pyphen(lang='nl_NL')
-output_path = "images/"
 
-def find_max_split_from_chunks(chunks, fnt, max_width):
+def find_optimal_split_from_chunks(chunks, font, max_width):
     final_split = []
     current = ""
-    for syl in chunks:
-        test = current + syl
-        width = fnt.getlength(test + "-")
-        if width > max_width:
+    for chunk in chunks:
+        text = current + chunk
+        text_width = font.getlength(text + "-")
+        if text_width > max_width:
             if current:
                 final_split.append(current)
-            current = syl
+            current = chunk
         else:
-            current = test
+            current = text
     if current:
         final_split.append(current)
     return final_split
 
-
-def split_up_syllables(line, font, max_text_width):
-    syllables = dictionary.inserted(line).split('-')
-    chunks = find_max_split_from_chunks(syllables, font, max_text_width)
-    for chunk in chunks[:-1]:
-        idx = chunks.index(chunk)
-        chunks[idx] += "-"
-    return chunks
-
-def smart_capitalize(text):
+def capitalize_each_word(text):
     words = text.split()
-    for j, w in enumerate(words):
-        for i, letter in enumerate(w):
-            if letter in ['(', ')']:
-                continue
-            words[j] = w[:i] + w[i].upper() + w[i+1:]
-            break
+    for word_index, word in enumerate(words):
+        for letter_index, letter in enumerate(word):
+            if letter.isalpha():
+                words[word_index] = capitalize_current_letter(word, letter_index)
+                break
     return ' '.join(words)
 
-def split_up_term_test(cfg, term, draw, font):
-    max_text_width = cfg["width"] - (cfg["margin"] * 2)
-    lines = [smart_capitalize(term.text)]
+def capitalize_current_letter(word, letter_index):
+    return word[:letter_index] + word[letter_index].upper() + word[letter_index + 1:]
+
+def split_in_two_lines_by_words(words, draw, font, max_text_width):
+    text_width = 0
+    newline_1 = ""
+    newline_2 = ""
+
+    for idx, word in enumerate(words):
+        left, top, right, bottom = draw.textbbox((0, 0), newline_1 + word, font=font)
+        word_width = right - left
+        text_width += word_width
+        if text_width > max_text_width:
+            newline_2 = " ".join(words[idx:])
+            return newline_1, newline_2
+        newline_1 += word
+
+    return newline_1, newline_2
+
+def add_dash_to_split_compounds(compounds):
+    return [item + '-' for item in compounds[:-1]]
+
+def add_left_over_words_back_to_compounds(compounds, words):
+    compounds[-1] += " " + " ".join(words[1:])
+    return compounds
+
+def split_text(draw, line, font, max_text_width, lines):
+    words = line.split()
+    left, top, right, bottom = draw.textbbox((0, 0), words[0], font=font)
+    text_width_first_word = right - left
+    if len(words) > 1 and text_width_first_word <= max_text_width:
+        new_splits = split_in_two_lines_by_words(words, draw, font, max_text_width)
+    else:
+        compounds = SplitCompounds.split_chunks(words[0], font, max_text_width)
+        compounds = find_optimal_split_from_chunks(compounds, font, max_text_width)
+        compounds[0:-1] = add_dash_to_split_compounds(compounds)
+        if len(words) > 1:
+            new_splits = add_left_over_words_back_to_compounds(compounds, words)
+        else:
+            new_splits = compounds
+
+    idx = lines.index(line)
+    lines[idx:idx + 1] = new_splits
+    return lines
+
+def reached_last_line(line, lines):
+    idx = lines.index(line)
+    return idx == len(lines) - 1
+
+def draw_text(cfg, text, draw, font):
+    max_text_width = cfg[CfgFields.WIDTH] - (cfg[CfgFields.MARGIN] * 2)
+    capitalized_text = capitalize_each_word(text)
+
+    lines = [capitalized_text]
     reachedLastLine = False
     while not reachedLastLine:
         for line in lines:
             left, top, right, bottom = draw.textbbox((0, 0), line, font=font)
             text_width = right - left
             if text_width > max_text_width:
-                words = line.split()
+                lines = split_text(draw, line, font, max_text_width, lines)
+                break
 
-                left, top, right, bottom = draw.textbbox((0, 0), words[0], font=font)
-                if len(words) > 1 and (right - left) <= max_text_width:  # if line contains multiple words
-                    text_width = 0
-                    newline_1 = ""
-                    newline_2 = ""
-                    for word in words:
-                        left, top, right, bottom = draw.textbbox((0, 0), newline_1 + word, font=font)
-                        text_width = text_width + (right - left)
-                        if text_width > max_text_width:
-                            idx = words.index(word)
-                            newline_2 = " ".join(words[idx:])
-                            break
-                        if newline_1:
-                            newline_1 += " "
-                        newline_1 += word
-                    idx = lines.index(line)
-                    lines[idx:idx + 1] = [newline_1, newline_2]
-                    break
-                else:
-                    words = line.split(" ")
-                    compounds = SplitCompounds.split_compounds(words[0], font, max_text_width)
-                    compounds = find_max_split_from_chunks(compounds, font, max_text_width)
-                    compounds[0:-1] = [item + '-' for item in compounds[0:-1]]
-                    if (len(words) > 1):
-                        compounds[-1] += " " + " ".join(words[1:])
-                    idx = lines.index(line)
-                    lines[idx:idx + 1] = compounds
-                    break
-            idx = lines.index(line)
-            if idx == len(lines) - 1:
-                reachedLastLine = True
+            reachedLastLine = reached_last_line(line, lines)
 
     text = "\n".join(lines)
     return text
@@ -95,27 +106,26 @@ async def create_picture_async(term, style_cfg):
     loop = asyncio.get_running_loop()
     await loop.run_in_executor(None, create_picture, term, style_cfg)
 
-def create_picture(term:Term, style_cfg):
-    cfg = style_cfg
-    image = Image.new("RGB", (cfg["width"], cfg["height"]), cfg["background_color"])
-    draw = ImageDraw.Draw(image)
+def create_picture(term:Term, cfg):
+    imageFormat = Image.new("RGB", (cfg[CfgFields.WIDTH], cfg[CfgFields.HEIGHT]), cfg[CfgFields.BACKGROUND_COLOR])
+    image = ImageDraw.Draw(imageFormat)
 
     # Load default font or a TTF font if available
     try:
-        font = ImageFont.truetype(cfg["font"], cfg["font_size"])
+        font = ImageFont.truetype(cfg[CfgFields.FONT], cfg[CfgFields.FONT_SIZE])
     except IOError:
-        print(f"Font {cfg['font']} niet gevonden. Gebruik standaard font in plaats daarvan.")
-        font = ImageFont.truetype("DejaVuSans.ttf", cfg["font_size"])
+        print(f"Font {cfg[CfgFields.FONT]} niet gevonden. Gebruik standaard font in plaats daarvan.")
+        font = ImageFont.truetype("DejaVuSans.ttf", cfg[CfgFields.FONT_SIZE])
 
 
-    text = split_up_term_test(cfg, term, draw, font)
+    text = draw_text(cfg, term.text, image, font)
 
     x = cfg["width"]/2
     y=cfg["height"]/2
-    draw.multiline_text((x, y), text, fill=term.text_color, font=font, anchor="mm", align="center")
+    image.multiline_text((x, y), text, fill=term.text_color, font=font, anchor="mm", align="center")
 
     # Save as JPG
-    image_folder = add_base_path(output_path)
+    image_folder = add_base_path(Constants.OUTPUT_FOLDER)
     filename = term.text.replace("/", "_").replace("?", "_")
-    image.save(os.path.join(image_folder, filename) + ".jpg", "JPEG")
+    imageFormat.save(os.path.join(image_folder, filename) + ".jpg", "JPEG")
 

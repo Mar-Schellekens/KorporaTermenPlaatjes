@@ -51,4 +51,5 @@ class Acties(StrEnum):
 
 
 CONFIG_FOLDER = "configuraties"
+OUTPUT_FOLDER = "images"
 
