@@ -1,14 +1,6 @@
-import os
-import sys
 from itertools import permutations
-
-from ColorConfig import add_or_modify_type
 from Utils import add_base_path
 
-import pyphen
-from wordfreq import zipf_frequency
-
-#dictionary = pyphen.Pyphen(lang='nl_NL')
 wordlist = add_base_path("wordlist.txt")
 wordlist_user = add_base_path("wordlist_user.txt")
 with open(wordlist, "r", encoding="utf-8") as f:
@@ -23,16 +15,6 @@ def is_dutch_word(word):
         return True
     else:
         return False
-
-# def is_dutch_word(word, threshold=2):
-#     if "/" in word:
-#         return False
-#     """
-#     Check if a word exists in Dutch using its frequency score.
-#     threshold: higher -> stricter (only common words)
-#     """
-#     return zipf_frequency(word, "nl") >= threshold
-
 
 word = "Alarmeringsapparatuur"
 
@@ -65,18 +47,8 @@ def check_tussen_s(word, possible_compounds, test_compound):
                 return test_compound[1:]
     return test_compound
 
-
-
-    # for idx, compound in enumerate(compounds):
-    #     if compound[0] == 's':
-    #         if is_dutch_word(compound[1:]) and idx > 0 and compounds[idx - 1][-1] != 's':
-    #             compounds[idx-1] += ('s')
-    #             compounds[idx] = compounds[idx][1:]
-
 def split_compounds(word, font, max_width):
     final_compounds = []
-    #compounds = get_all_possible_compounds(word)
-    finishedFindingCompounds = False
     rest_of_word = [word]
     while len(rest_of_word) != 0:
         compounds = []
@@ -84,7 +56,6 @@ def split_compounds(word, font, max_width):
             compounds.extend(get_all_possible_compounds(parts))
 
         if len(compounds) == 0:
-            #final_compounds.append(*rest_of_word)
             final_compounds.extend(rest_of_word)
             break
 
@@ -106,8 +77,6 @@ def split_compounds(word, font, max_width):
                     rest_of_word_new.append(part2)
 
         rest_of_word = rest_of_word_new
-        #rest_of_word = rest_of_word.split(longest_compound)
-        #rest_of_word = rest_of_word.replace(longest_compound, "")
 
     compounds = fix_order(word, final_compounds)
 

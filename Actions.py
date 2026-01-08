@@ -13,13 +13,12 @@ from openpyxl.reader.excel import load_workbook
 
 import Constants
 from Constants import Acties
-from CreateInputConfig import modify_config, create_new_config, save_config
-from CreatePicture import create_picture, create_picture_test
+from CreateInputConfig import save_config
+from CreatePicture import create_picture
 from LoadTerms import load_terms
 from RulesConfig import get_all_colors_in_column
 from Singleton import app
 from openpyxl.utils import get_column_letter
-
 from Utils import add_base_path
 
 
@@ -58,8 +57,6 @@ async def test_create_config_file_name_found_cb(config_name):
     app.get().ui.setActiveConfigName(config_name)
     app.get().ui.setActiveConfig(cfg)
     await prompt_input_input_file_new()
-    #input file name
-
 
 async def config_state_machine():
     state_machine = app.get().ui.getConfigStateMachine()
@@ -268,7 +265,6 @@ async def prompt_input_termen_new_cb(user_input):
 async def prompt_input_input_file_new(default = None):
     await app.get().ui.EmptyScreen()
     app.get().ui.setButtonInput("Kies het excel bestand om de plaatjes te genereren.", "Klik hier om de verkenner te openen", prompt_input_file_new_cb)
-    #app.get().ui.setInput("Kies het excel bestand om de plaatjes te genereren. Druk op Enter om de verkenner te openen", prompt_input_file_new_cb)
     await app.get().ui.refreshScreen()
 
 async def prompt_input_file_new_cb():
@@ -287,7 +283,6 @@ async def prompt_input_header_new():
 
 async def prompt_input_header_new_cb(user_input):
     app.get().ui.setActiveConfigField("file_has_header", user_input)
-    #app.get().ui.setConfigStateMachine("file_has_header")
     await config_state_machine()
 
 
@@ -298,9 +293,6 @@ async def let_user_choose_config():
     if len(cfg_files) == 0:
         app.get().ui.setMessage("Er bestaan nog geen configuratie bestanden.")
         await listActions()
-
-    # for i, file_name in enumerate(cfg_files, start=1):
-    #     print(f"{i}. {print_config(file_name)}", "")
 
     app.get().ui.setList("Kies een input configuratie bestand:", cfg_files, callback_let_user_choose_config)
     await app.get().ui.refreshScreen()
@@ -324,27 +316,18 @@ async def callbackActies(actie):
         case Acties.LAAD_BESTAANDE_CONFIG:
             await let_user_choose_config()
         case Acties.VERANDER_CONFIG:
-            modify_config(callbackActies.input_config_file_name)
+            print("): no workie")
         case Acties.MAAK_NIEUWE_CONFIG:
             await test_create_config_file()
-            #input_config_file_name = create_new_config()
         case Acties.GENEREER_PLAATJES:
             with open(app.get().input_config_file_name) as f:
                 cfg = json.load(f)
             termen = load_terms(cfg)
-            #for term in termen:
-                #await create_picture(term, cfg, app.get())
-                #asyncio.create_task(create_picture(term, cfg, app.get()))
 
             await app.get().ui.EmptyScreen()
             app.get().ui.setShowProgressBar(True)
             await app.get().ui.refreshScreen()
             percent = 1/len(termen) * 100
             asyncio.create_task(slowTask(app.get().ui, termen, cfg, percent))
-            #for term in termen:
-                #sleep(2)
-                #await app.get().ui.increment()
-                #app.get().ui.run_worker(create_picture(term, cfg, app.get().ui), process=True)
-                #asyncio.create_task(create_picture(term, cfg, app.get().ui))
-                #asyncio.create_task(slowTask(app.get().ui))
+
 

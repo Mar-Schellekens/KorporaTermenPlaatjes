@@ -1,7 +1,4 @@
-import asyncio
 import copy
-from random import random
-
 from textual.app import App, ComposeResult
 from textual.reactive import reactive
 from textual.widgets import Static, ListView, ListItem, Label, ProgressBar, RichLog, Input, Button

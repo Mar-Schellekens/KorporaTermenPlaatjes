@@ -1,5 +1,3 @@
-from enum import Enum
-from aenum import Enum as CoolEnum
 from enum import StrEnum
 
 class Config(StrEnum):
@@ -29,9 +27,4 @@ class Acties(StrEnum):
 
 
 CONFIG_FOLDER = "configuraties"
-
-# class TextColor(Enum):
-#     Brandweer = (214, 29, 44)
-#     Politie = (0, 85, 255)
-#     Standaard = (0, 29, 63)
 
