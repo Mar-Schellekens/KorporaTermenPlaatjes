@@ -13,20 +13,33 @@ from View import View
 from Utils import add_base_path, convert_excel_colors_to_string
 
 class ViewInputPrompter:
-    async def test_create_config_file(self, cb):
-        await View.get().EmptyScreen()
-        View.get().setInput("Wat is de nieuwe naam van de configuratie?", cb)
-        await View.get().refreshScreen()
+    async def exit(self):
+        await View.get().action_quit()
 
-    async def prompt_input_type_column(self, cb):
-        await View.get().EmptyScreen()
+    async def show_main_menu(self, actions, cb):
+        await View.get().empty_screen()
+        View.get().setList("Kies een actie: ", actions, cb)
+        await View.get().refresh_screen()
+
+    async def show_progress_bar(self, cb):
+        await View.get().empty_screen()
+        View.get().setShowProgressBar(True, cb)
+        await View.get().refresh_screen()
+
+    async def name_new_config(self, cb):
+        await View.get().empty_screen()
+        View.get().setInput("Wat is de nieuwe naam van de configuratie?", cb)
+        await View.get().refresh_screen()
+
+    async def type_column(self, cb):
+        await View.get().empty_screen()
         config = Model.get().get_active_cfg()
         df = pandas.read_excel(config["input_file_name"])
         View.get().setList("Welke kolom bevat de kleur?", df.columns, cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_type_cell_color(self, cb):
-        await View.get().EmptyScreen()
+    async def cell_color_type(self, cb):
+        await View.get().empty_screen()
         config = Model.get().get_active_cfg()
         configType = Model.get().get_new_config_type()
         wb = load_workbook(config["input_file_name"])
@@ -36,78 +49,78 @@ class ViewInputPrompter:
         all_colors = get_all_colors_in_column(ws, column, wb)
         all_colors_string = convert_excel_colors_to_string(all_colors)
         View.get().setList("Welke kleur hoort bij dit type?", all_colors_string, cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_type_method(self, cb):
-        await View.get().EmptyScreen()
+    async def type_method(self, cb):
+        await View.get().empty_screen()
         View.get().setList("Wil je bepalen via celkleur of celinhoud, of iets bij dit type hoort?", ["celkleur", "celinhoud"], cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_type_text_color(self, cb):
-        await View.get().EmptyScreen()
+    async def type_text_color(self, cb):
+        await View.get().empty_screen()
         View.get().setInput("Wat moet de tekstkleur zijn van dit type? Type de gewenste kleur als hexstring (bijv: \"#673489\")", cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_type_name(self, cb):
-        await View.get().EmptyScreen()
+    async def type_name(self, cb):
+        await View.get().empty_screen()
         View.get().setInput("Wat is de naam van dit type?", cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_types(self, cb):
-        await View.get().EmptyScreen()
+    async def types(self, cb):
+        await View.get().empty_screen()
         list_options = ["Nieuw type toevoegen", "Doorgaan naar volgende stap"]
         View.get().setList("Een type zorgt ervoor dat bepaalde groepen, bepaalde tekstkleuren krijgen", list_options, cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_margin(self, cb):
-        await View.get().EmptyScreen()
+    async def margin(self, cb):
+        await View.get().empty_screen()
         View.get().setNumberInput("Type de gewenste marge in pixels", cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_font_size(self, cb):
-        await View.get().EmptyScreen()
+    async def font_size(self, cb):
+        await View.get().empty_screen()
         View.get().setNumberInput("Type de gewenste tekstgrootte", cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_font(self, cb):
-        await View.get().EmptyScreen()
+    async def font(self, cb):
+        await View.get().empty_screen()
         View.get().setInput("Type de naam van het font dat je wil gebruiken.", cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_background_color(self, cb):
-        await View.get().EmptyScreen()
+    async def background_color(self, cb):
+        await View.get().empty_screen()
         View.get().setInput("Type de gewenste kleur van de achtergrond van het plaatje als hexstring (bijv: \"#673489\"", cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_width_new(self, cb):
-        await View.get().EmptyScreen()
+    async def width(self, cb):
+        await View.get().empty_screen()
         View.get().setNumberInput("Type de gewenste breedte van het gegenereerde plaatje in pixels", cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_height_new(self, cb):
-        await View.get().EmptyScreen()
+    async def height(self, cb):
+        await View.get().empty_screen()
         View.get().setNumberInput("Type de gewenste hoogte van het gegenereerde plaatje in pixels", cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_termen_new(self, cb):
+    async def column_name(self, cb):
         cfg = Model.get().get_active_cfg()
         df = pandas.read_excel(cfg["input_file_name"])
 
-        await View.get().EmptyScreen()
+        await View.get().empty_screen()
         View.get().setList("Selecteer de kolom die de termen bevat. Het opgegeven bestand bevat de volgende kolommen:", df.columns, cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_input_file_new(self, cb):
-        await View.get().EmptyScreen()
+    async def input_excel_file(self, cb):
+        await View.get().empty_screen()
         View.get().setButtonInput("Kies het excel bestand om de plaatjes te genereren.", "Klik hier om de verkenner te openen", cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def prompt_input_header_new(self, cb):
-        await View.get().EmptyScreen()
+    async def header(self, cb):
+        await View.get().empty_screen()
         View.get().setList("Is de eerste rij van het bestand de koptekst/header?", ["ja", "nee"], cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def let_user_choose_config(self, cb, cb_no_configs):
+    async def user_choose_config(self, cb, cb_no_configs):
         config_folder = add_base_path(Constants.CONFIG_FOLDER)
         cfg_files = glob.glob(os.path.join(config_folder, "*.json"))
 
@@ -116,13 +129,10 @@ class ViewInputPrompter:
             await cb_no_configs()
 
         View.get().setList("Kies een input configuratie bestand:", cfg_files, cb)
-        await View.get().refreshScreen()
+        await View.get().refresh_screen()
 
-    async def slowTaskPrompt(self, termen, file_name, percent, cb):
-        for counter, term in enumerate(termen):
-            await create_picture_async(term, file_name)
-            await View.get().increment_test(counter/len(termen)*100)
-        await View.get().increment_test(0, finished=True)
+
+
 
 
 

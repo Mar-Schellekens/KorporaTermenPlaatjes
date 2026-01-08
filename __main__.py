@@ -5,10 +5,13 @@ from View import View
 
 actions = [Acties.MAAK_NIEUWE_CONFIG, Acties.LAAD_BESTAANDE_CONFIG, Acties.EXIT]
 controller = Controller()
+app = View.get()
+
+app.set_controller(controller)
+
+app.run()
 
 
-View.get().setList("Kies een actie: ", actions, controller.callbackActies)
-View.get().run()
 
 
 

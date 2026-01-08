@@ -1,7 +1,11 @@
+import json
+import os
 import sys
 from pathlib import Path
 
 from openpyxl.reader.excel import load_workbook
+
+import Constants
 
 
 def let_user_choose_actie(acties):
@@ -33,3 +37,10 @@ def load_excel_file(file_name):
     workbook = load_workbook(file_name)
     worksheet = workbook.active
     return workbook, worksheet
+
+def save_config(config, config_name):
+    config_dir = add_base_path(Constants.CONFIG_FOLDER)
+    config_name = os.path.join(config_dir, config_name)
+    with open(config_name, "w") as f:
+        json.dump(config, f, indent=2)
+    print(f"Configuratie opgeslagen onder {config_name}")

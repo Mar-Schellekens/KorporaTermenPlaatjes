@@ -5,29 +5,30 @@ from typing import List
 import numpy as np
 import pandas
 from Constants import CfgFields, TypesMenu, StateMachines, Validations
-from CreateInputConfig import save_config
 from Model import Model
 from RulesConfig import get_all_colors_in_column
-from Utils import convert_excel_colors_to_string, load_excel_file
+from Utils import convert_excel_colors_to_string, load_excel_file, save_config
+
 
 class ControlInputHandler:
     def __init__(self, controller):
         self.controller = controller
+        self.model = Model.get()
 
     def validation_excel_column(self, user_input):
-        cfg = Model.get().get_active_cfg()
+        cfg = self.model.get_active_cfg()
         df = pandas.read_excel(cfg[CfgFields.INPUT_FILE_NAME])
         cfg_value = int(np.where(df.columns.values == user_input)[0][0])
         return True, None, cfg_value
 
 
     def validation_color_type(self, user_input):
-        config = Model.get().get_active_cfg()
+        config = self.model.get_active_cfg()
         file_name = config[CfgFields.INPUT_FILE_NAME]
         workbook, worksheet = load_excel_file(file_name)
 
         # Find the right values using worksheet and user_input
-        config_type = Model.get().get_new_config_type()
+        config_type = self.model.get_new_config_type()
         column = config_type[CfgFields.TYPES_COLUMN]  # column to scan
         all_colors = get_all_colors_in_column(worksheet, column, workbook)
         all_colors_string = convert_excel_colors_to_string(all_colors)
@@ -63,15 +64,15 @@ class ControlInputHandler:
         if valid:
             if isinstance(cfg_value, list):
                 for f, v in zip(field, cfg_value):
-                    Model.get().set_active_cfg_field(f, v)
+                    self.model.set_active_cfg_field(f, v)
             else:
-                Model.get().set_active_cfg_field(field, cfg_value)
+                self.model.set_active_cfg_field(field, cfg_value)
 
         await self.controller.state_machine()
 
 
     async def set_active_cfg(self, config_name):
-        Model.get().set_active_cfg_name(config_name)
+        self.model.set_active_cfg_name(config_name)
         await self.controller.state_machine()
 
     async def create_empty_cfg(self, name):
@@ -79,15 +80,15 @@ class ControlInputHandler:
         if not name.lower().endswith(".json"):
             name += ".json"
         save_config(cfg, name)
-        Model.get().set_active_cfg_name(name)
-        Model.get().set_active_cfg(cfg)
+        self.model.set_active_cfg_name(name)
+        self.model.set_active_cfg(cfg)
         await self.controller.state_machine()
 
     async def handle_new_cfg_type_input(self, user_input):
         if user_input == TypesMenu.ADD:
-            Model.get().current_state_machine = StateMachines.CFG_TYPE
+            self.model.current_state_machine = StateMachines.CFG_TYPE
         elif user_input == TypesMenu.CONT:
-            Model.get().set_done_adding_types()
+            self.model.set_done_adding_types()
 
         await self.controller.state_machine()
 

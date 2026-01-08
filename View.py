@@ -46,7 +46,10 @@ class View(App):
         self.buttonText = None
         self.input_field_name = None
         self.set_field_cb = None
+        self.controller = None
 
+    def set_controller(self, controller):
+        self.controller = controller
 
     def setInput(self, prompt, callback):
         self.inputPrompt = prompt
@@ -82,7 +85,7 @@ class View(App):
         if self.buttonInputCallback is not None:
             await self.buttonInputCallback()
 
-    async def EmptyScreen(self):
+    async def empty_screen(self):
         self.prompt = None
         self.list = None
         self.message = None
@@ -97,7 +100,7 @@ class View(App):
 
         await self.recompose()
 
-    async def refreshScreen(self):
+    async def refresh_screen(self):
         await self.recompose()
         try:
             view = self.query_one(ListView)
@@ -138,10 +141,10 @@ class View(App):
             yield Label(self.prompt)
             yield Button(self.buttonText, id="button")
 
-    async def increment_test(self, percentage, finished=False):
+    async def set_loading_bar(self, percentage, finished=False):
         if finished:
             self.progress.update(progress=0)
-            await self.EmptyScreen()
+            await self.empty_screen()
             await self.callback()
         else:
             self.progress.update(progress = percentage)
@@ -149,6 +152,7 @@ class View(App):
 
     async def on_mount(self) -> None:
         # Focus the ListView so keyboard navigation works
+        await self.controller.state_machine()
         self.query_one(ListView).focus()
 
     async def on_list_view_selected(self, event: ListView.Selected) -> None:

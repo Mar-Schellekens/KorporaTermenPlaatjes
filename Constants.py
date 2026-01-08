@@ -34,6 +34,7 @@ class CfgFields(StrEnum):
     FONT = "font"
     FONT_SIZE = "font_size"
     MARGIN = "margin"
+    COLUMN_LETTER = "column_letter"
 
 TYPE_FIELDS = [CfgFields.TYPES_NAME,
                CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR,

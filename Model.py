@@ -8,7 +8,7 @@ class Model:
    def __init__(self):
        self.current_state_machine = StateMachines.MAIN_MENU
        self.active_config_name = None
-       self.activeConfig = None
+       self.active_config = None
        self.newConfigType = {}
        self.configStateMachine = {}
        self.typeStateMachine = {}
@@ -17,18 +17,18 @@ class Model:
        self.active_config_name = config
 
    def set_active_cfg(self, config):
-       self.activeConfig = config
+       self.active_config = config
 
    def get_active_cfg(self):
-       return self.activeConfig
+       return self.active_config
 
    def get_new_config_type(self):
        return self.newConfigType
 
-   def setConfigType(self):
-       if "types" not in self.activeConfig:
-           self.activeConfig["types"] = []
-       self.activeConfig["types"].append(copy.deepcopy(self.newConfigType))
+   def set_config_type(self):
+       if "types" not in self.active_config:
+           self.active_config["types"] = []
+       self.active_config["types"].append(copy.deepcopy(self.newConfigType))
 
    def set_done_adding_types(self):
        Model.get().configStateMachine[CfgFields.TYPES] = True
@@ -38,7 +38,7 @@ class Model:
            if field_name in TYPE_FIELDS:
                self.newConfigType[field_name] = value
            else:
-            self.activeConfig[field_name] = value
+            self.active_config[field_name] = value
 
        if field_name in TYPE_FIELDS:
             self.typeStateMachine[field_name] = True
@@ -51,10 +51,10 @@ class Model:
        # Could we make this private, and let all cals go through setActiveConfigField?
        self.configStateMachine[name] = True
 
-   def getConfigStateMachine(self):
+   def get_config_state_machine(self):
        return self.configStateMachine
 
-   def getTypeStateMachine(self):
+   def get_type_state_machine(self):
        return self.typeStateMachine
 
 f = () # Error, this isn't how you get the instance of a singleton
