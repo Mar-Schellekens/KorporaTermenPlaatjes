@@ -267,7 +267,7 @@ async def prompt_input_termen_new_cb(user_input):
 
 async def prompt_input_input_file_new(default = None):
     await app.get().ui.EmptyScreen()
-    app.get().ui.setButtonInput("Kies het excel bestand om de plaatjes te genereren.", "Open de verkenner", prompt_input_file_new_cb)
+    app.get().ui.setButtonInput("Kies het excel bestand om de plaatjes te genereren.", "Klik hier om de verkenner te openen", prompt_input_file_new_cb)
     #app.get().ui.setInput("Kies het excel bestand om de plaatjes te genereren. Druk op Enter om de verkenner te openen", prompt_input_file_new_cb)
     await app.get().ui.refreshScreen()
 
