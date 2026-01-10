@@ -4,15 +4,15 @@ from Constants import CfgFields
 from Term import Term
 
 def classify_cell(cell, types):
-    for type in types:
-        column_index = type[CfgFields.TYPES_COLUMN]
-        if type[CfgFields.TYPES_METHOD] == "celkleur":
-            if type[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "theme":
-                if str(cell[column_index].fill.start_color.theme) == type[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
-                    return type[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
-            elif type[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "rgb":
-                if cell[column_index].fill.start_color.rgb == type[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
-                    return type[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
+    for typ in types:
+        column_index = typ[CfgFields.TYPES_COLUMN]
+        if typ[CfgFields.TYPES_METHOD] == "celkleur":
+            if typ[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "theme":
+                if str(cell[column_index].fill.start_color.theme) == typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
+                    return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
+            elif typ[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "rgb":
+                if cell[column_index].fill.start_color.rgb == typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
+                    return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
     return "#000000"
 
 def load_terms(cfg):

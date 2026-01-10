@@ -9,9 +9,9 @@ class Model:
        self.current_state_machine = StateMachines.MAIN_MENU
        self.active_config_name = None
        self.active_config = None
-       self.newConfigType = {}
-       self.configStateMachine = {}
-       self.typeStateMachine = {}
+       self.new_config_type = {}
+       self.config_state_machine = {}
+       self.type_state_machine = {}
 
    def set_active_cfg_name(self, config):
        self.active_config_name = config
@@ -23,39 +23,39 @@ class Model:
        return self.active_config
 
    def get_new_config_type(self):
-       return self.newConfigType
+       return self.new_config_type
 
    def set_config_type(self):
        if "types" not in self.active_config:
            self.active_config["types"] = []
-       self.active_config["types"].append(copy.deepcopy(self.newConfigType))
+       self.active_config["types"].append(copy.deepcopy(self.new_config_type))
 
    def set_done_adding_types(self):
-       Model.get().configStateMachine[CfgFields.TYPES] = True
+       Model.get().config_state_machine[CfgFields.TYPES] = True
 
    def set_active_cfg_field(self, field_name, value=None):
        if value is not None:
            if field_name in TYPE_FIELDS:
-               self.newConfigType[field_name] = value
+               self.new_config_type[field_name] = value
            else:
             self.active_config[field_name] = value
 
        if field_name in TYPE_FIELDS:
-            self.typeStateMachine[field_name] = True
+            self.type_state_machine[field_name] = True
        else:
-            Model.get().configStateMachine[field_name] = True
+            Model.get().config_state_machine[field_name] = True
 
 
 
    def setConfigStateMachine(self, name):
        # Could we make this private, and let all cals go through setActiveConfigField?
-       self.configStateMachine[name] = True
+       self.config_state_machine[name] = True
 
    def get_config_state_machine(self):
-       return self.configStateMachine
+       return self.config_state_machine
 
    def get_type_state_machine(self):
-       return self.typeStateMachine
+       return self.type_state_machine
 
 f = () # Error, this isn't how you get the instance of a singleton
 

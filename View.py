@@ -1,10 +1,8 @@
-import asyncio
-
 from textual.app import App, ComposeResult
 from textual.reactive import reactive
 from textual.widgets import Static, ListView, ListItem, Label, ProgressBar, RichLog, Input, Button
-from textual.screen import Screen
-from textual import events
+
+from Constants import ViewState
 from Model import Model
 from Singleton import Singleton
 
@@ -15,17 +13,6 @@ class NumberInput(Input):
         if cleaned != self.value:
             self.value = cleaned  # enforce numeric characters only
 
-class MessageScreen(Screen):
-    """Simple confirmation screen."""
-
-    def __init__(self, message: str) -> None:
-        super().__init__(f"{message}\n\nPress Q to quit.", id="message")
-
-    async def on_key(self, event: events.Key) -> None:
-        self.query_one(RichLog).write(event)
-        if event.key.lower() == "q":
-            await self.app.action_quit()
-
 @Singleton
 class View(App):
     progress_value = reactive(0)
@@ -33,113 +20,103 @@ class View(App):
     def __init__(self):
         super().__init__()
         self.progress = ProgressBar(total=100, show_eta=False)
-        self.prompt = None
-        self.inputPrompt = None
-        self.numberInputPrompt = None
-        self.inputCallback = None
-        self.buttonInputCallback = None
-        self.list = None
-        self.message = None
+
         self.callback = None
-        self.percentage = None
-        self.ShowProgressBar = False
+
+        self.prompt = None
+        self.list = None
         self.buttonText = None
-        self.input_field_name = None
-        self.set_field_cb = None
+
+        self.state: ViewState = ViewState.EMPTY
+
         self.controller = None
 
     def set_controller(self, controller):
         self.controller = controller
 
-    def setInput(self, prompt, callback):
-        self.inputPrompt = prompt
-        self.inputCallback = callback
+    def set_text_input(self, prompt, callback):
+        self.prompt = prompt
+        self.callback = callback
+        self.state = ViewState.TEXT_INPUT
 
-    def setNumberInput(self, prompt, callback):
-        self.numberInputPrompt = prompt
-        self.inputCallback = callback
+    def set_number_input(self, prompt, callback):
+        self.prompt = prompt
+        self.callback= callback
+        self.state = ViewState.NUMBER_INPUT
 
-    def setButtonInput(self, prompt, button_text, callback):
+    def set_button_input(self, prompt, button_text, callback):
         self.buttonText = button_text
         self.prompt = prompt
-        self.buttonInputCallback = callback
-
-    def setList(self, prompt, list, callback):
-        self.prompt = prompt
-        self.list = list
         self.callback = callback
+        self.state = ViewState.BUTTON
 
-    def setMessage(self, message):
-        self.message = message
+    def set_list(self, prompt, lst, callback):
+        self.prompt = prompt
+        self.list = lst
+        self.callback = callback
+        self.state = ViewState.LIST
 
-    def setShowProgressBar(self, show, cb):
-        self.ShowProgressBar = show
+    def set_message(self, message):
+        self.prompt = message
+        self.state = ViewState.MESSAGE
+
+    def set_show_progress_bar(self, show, cb):
         self.callback = cb
+        self.state = ViewState.PROGRESS
 
     async def on_input_submitted(self, event:Input.Submitted):
         user_text = event.value
-        if self.inputCallback is not None:
-            await self.inputCallback(user_text)
+        if self.callback is not None:
+            await self.callback(user_text)
 
     async def on_button_pressed(self, event: Button.Pressed):
-        if self.buttonInputCallback is not None:
-            await self.buttonInputCallback()
+        if self.callback is not None:
+            await self.callback()
 
     async def empty_screen(self):
-        self.prompt = None
-        self.list = None
-        self.message = None
-        self.inputPrompt = None
-        self.numberInputPrompt = None
-        self.inputCallback = None
-        self.buttonInputCallback = None
-        self.buttonText = None
-        self.ShowProgressBar = False
-        self.input_field_name = None
-        self.set_field_cb = None
-
+        self.state = ViewState.EMPTY
         await self.recompose()
 
     async def refresh_screen(self):
         await self.recompose()
-        try:
+        if self.state == ViewState.TEXT_INPUT:
+            view = self.query_one(Input)
+            if view is not None:
+                view.focus()
+
+        if self.state == ViewState.LIST:
             view = self.query_one(ListView)
             if view is not None:
                 view.focus()
-        except:
-            pass
 
-    CSS = """
- /* Root screen styling */
-
-    """
+        if self.state == ViewState.NUMBER_INPUT:
+            view = self.query_one(NumberInput)
+            if View is not None:
+                view.focus()
 
 
     def compose(self) -> ComposeResult:
-        #yield Static("Result:", id="result")
-        if self.ShowProgressBar:
-            yield self.progress
         if Model.get().active_config_name is not None:
-            yield Static (f"Actieve configuratie: " + Model.get().active_config_name, id="config")
-        if self.message is not None:
-            yield Static(self.message, id="result")
-        if self.list is not None:
-            yield Static(self.prompt, id="prompt")
-            yield ListView(
-                *[ListItem(Label(opt), name=opt) for opt in self.list],
-                id="menu"
-            )
-        if self.inputPrompt is not None:
-            yield Label(self.inputPrompt)
-            yield Input(placeholder="type here...", id="input")
-            yield Label("", id="output")
-        if self.numberInputPrompt is not None:
-            yield Label(self.numberInputPrompt)
-            yield NumberInput(placeholder="0", id="input")
-            yield Label("", id="output")
-        if self.buttonText is not None:
-            yield Label(self.prompt)
-            yield Button(self.buttonText, id="button")
+            yield Static(f"Actieve configuratie: " + Model.get().active_config_name, id="config")
+
+        match self.state:
+            case ViewState.PROGRESS:
+                yield self.progress
+            case ViewState.MESSAGE:
+                yield Static(self.prompt)
+            case ViewState.LIST:
+                yield Static(self.prompt)
+                yield ListView(
+                    *[ListItem(Label(opt), name=opt) for opt in self.list])
+            case ViewState.TEXT_INPUT:
+                yield Label(self.prompt)
+                yield Input(placeholder="type here...")
+            case ViewState.NUMBER_INPUT:
+                yield Label(self.prompt)
+                yield NumberInput(placeholder="0")
+            case ViewState.BUTTON:
+                yield Label(self.prompt)
+                yield Button(self.buttonText)
 
     async def set_loading_bar(self, percentage, finished=False):
         if finished:
@@ -151,9 +128,7 @@ class View(App):
 
 
     async def on_mount(self) -> None:
-        # Focus the ListView so keyboard navigation works
         await self.controller.state_machine()
-        self.query_one(ListView).focus()
 
     async def on_list_view_selected(self, event: ListView.Selected) -> None:
         selected = event.item.query_one(Label).content
