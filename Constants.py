@@ -2,12 +2,13 @@ from enum import StrEnum, Enum, auto
 
 
 class Validations(Enum):
-    TEXT = 0
-    NUMBER = 1
-    COLOR = 2
-    EXCEL_COLUMN = 3
-    COLOR_CELL_TYPE = 4
-    DICT = 5
+    TEXT = auto
+    NUMBER = auto
+    COLOR = auto()
+    EXCEL_COLUMN = auto()
+    COLOR_CELL_TYPE = auto()
+    DICT = auto()
+    FONT = auto()
 
 class StateMachines(Enum):
     MAIN_MENU = 0

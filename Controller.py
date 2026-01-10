@@ -1,6 +1,8 @@
 import json
 import pandas
 from openpyxl.utils import get_column_letter
+
+import Constants
 from Constants import Acties, StateMachines, CfgFields
 from CreatePicture import create_picture_async
 from Utils import save_config
@@ -65,7 +67,9 @@ class Controller:
             await create_picture_async(term, cfg)
             await View.get().set_loading_bar(counter / len(termen) * 100)
 
+        View.get().set_success_message("De plaatjes zijn gegenereerd en aanwezig in folder " + Constants.OUTPUT_FOLDER)
         await View.get().set_loading_bar(0, finished=True)
+
 
     async def config_state_machine(self):
         state_machine = self.model.get_config_state_machine()

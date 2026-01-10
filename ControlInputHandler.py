@@ -4,10 +4,13 @@ from typing import List
 
 import numpy as np
 import pandas
+from PIL import ImageFont
+
 from Constants import CfgFields, TypesMenu, StateMachines, Validations
 from Model import Model
 from RulesConfig import get_all_colors_in_column
-from Utils import convert_excel_colors_to_string, load_excel_file, save_config
+from Utils import convert_excel_colors_to_string, load_excel_file, save_config, is_valid_hex_color
+from View import View
 
 
 class ControlInputHandler:
@@ -38,8 +41,27 @@ class ControlInputHandler:
         cfg_value_2 = all_colors[idx][1]
         return True, None, [cfg_value_1, cfg_value_2]
 
+    def validation_hex_color(self, user_input):
+        if not is_valid_hex_color(user_input):
+            error = "Dat is geen valide hex kleur"
+            return False, error, user_input
+        else:
+            return True, None, user_input
+
+    def validation_font(self, user_input):
+        try:
+            ImageFont.truetype(user_input, 12)
+            return True, None, user_input
+        except IOError:
+            error = "Dat is geen valide font op dit systeem"
+            return False, error, user_input
+
+
 
     async def set_field_in_cfg(self, field, user_input, validation):
+        error = None
+        valid = False
+
         match validation:
             case Validations.EXCEL_COLUMN:
                 valid, error, cfg_value = self.validation_excel_column(user_input)
@@ -49,8 +71,7 @@ class ControlInputHandler:
                 valid = True
                 cfg_value = user_input
             case Validations.COLOR:
-                valid = True
-                cfg_value = user_input
+                valid, error, cfg_value = self.validation_hex_color(user_input)
             case Validations.DICT:
                 if isinstance(user_input, dict):
                     valid = True
@@ -58,6 +79,8 @@ class ControlInputHandler:
             case Validations.NUMBER:
                 cfg_value = int(user_input)
                 valid = True
+            case Validations.FONT:
+                valid, error, cfg_value = self.validation_font(user_input)
             case _:
                 valid = False
 
@@ -67,6 +90,9 @@ class ControlInputHandler:
                     self.model.set_active_cfg_field(f, v)
             else:
                 self.model.set_active_cfg_field(field, cfg_value)
+
+        if error is not None:
+            View.get().set_error_message(error)
 
         await self.controller.state_machine()
 
@@ -123,7 +149,7 @@ class ControlInputHandler:
         await self.set_field_in_cfg(CfgFields.FONT_SIZE, user_input, Validations.NUMBER)
 
     async def set_font_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.FONT, user_input, Validations.TEXT)
+        await self.set_field_in_cfg(CfgFields.FONT, user_input, Validations.FONT)
 
     async def set_bg_color_in_cfg(self, user_input):
         await self.set_field_in_cfg(CfgFields.BACKGROUND_COLOR, user_input, Validations.COLOR)

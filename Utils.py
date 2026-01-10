@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from openpyxl.reader.excel import load_workbook
@@ -26,3 +27,6 @@ def save_config(config, config_name):
     with open(config_name, "w") as f:
         json.dump(config, f, indent=2)
     print(f"Configuratie opgeslagen onder {config_name}")
+
+def is_valid_hex_color(s: str) -> bool:
+    return bool(re.fullmatch(r"#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})", s))

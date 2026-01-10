@@ -31,8 +31,23 @@ class View(App):
 
         self.controller = None
 
+        self.success_message = None
+        self.show_success_message = False
+
+        self.error_message = None
+        self.show_error_message = False
+
+
     def set_controller(self, controller):
         self.controller = controller
+
+    def set_success_message(self, success_message):
+        self.success_message = success_message
+        self.show_success_message = True
+
+    def set_error_message(self, error_message):
+        self.error_message = error_message
+        self.show_error_message = True
 
     def set_text_input(self, prompt, callback):
         self.prompt = prompt
@@ -75,7 +90,7 @@ class View(App):
 
     async def empty_screen(self):
         self.state = ViewState.EMPTY
-        await self.recompose()
+        #await self.recompose()
 
     async def refresh_screen(self):
         await self.recompose()
@@ -96,8 +111,18 @@ class View(App):
 
 
     def compose(self) -> ComposeResult:
+        if self.show_success_message:
+            yield Static("[green]" + self.success_message+ "[/green]")
+            self.show_success_message = False
+
+        if self.show_error_message:
+            yield Static("[red]" + self.error_message+ "[/red]")
+            self.show_error_message = False
+
         if Model.get().active_config_name is not None:
             yield Static(f"Actieve configuratie: " + Model.get().active_config_name, id="config")
+
+
 
         match self.state:
             case ViewState.PROGRESS:
