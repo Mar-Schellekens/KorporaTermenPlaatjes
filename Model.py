@@ -1,5 +1,6 @@
 import copy
 
+import Utils
 from Constants import StateMachines, TYPE_FIELDS, CfgFields
 from Singleton import Singleton
 
@@ -7,14 +8,19 @@ from Singleton import Singleton
 class Model:
    def __init__(self):
        self.current_state_machine = StateMachines.MAIN_MENU
-       self.active_config_name = None
+       self.active_config_path = None
        self.active_config = None
        self.new_config_type = {}
        self.config_state_machine = {}
        self.type_state_machine = {}
 
-   def set_active_cfg_name(self, config):
-       self.active_config_name = config
+   def get_active_cfg_name(self):
+       if self.active_config_path is not None:
+        return Utils.get_file_name_from_path(self.active_config_path)
+       return None
+
+   def set_active_cfg_path(self, path):
+        self.active_config_path = path
 
    def set_active_cfg(self, config):
        self.active_config = config

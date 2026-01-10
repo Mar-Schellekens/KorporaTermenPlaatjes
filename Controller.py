@@ -3,6 +3,7 @@ import pandas
 from openpyxl.utils import get_column_letter
 
 import Constants
+import Utils
 from Constants import Acties, StateMachines, CfgFields
 from CreatePicture import create_picture_async
 from Utils import save_config
@@ -33,7 +34,7 @@ class Controller:
     async def main_menu(self):
 
         actions = [Acties.MAAK_NIEUWE_CONFIG, Acties.LAAD_BESTAANDE_CONFIG]
-        if self.model.active_config_name is not None:
+        if self.model.get_active_cfg_name() is not None:
             actions.append(Acties.GENEREER_PLAATJES)
         actions.append(Acties.EXIT)
 
@@ -46,17 +47,18 @@ class Controller:
             case Acties.LAAD_BESTAANDE_CONFIG:
                 await self.prompts.user_choose_config(self.cbs.set_active_cfg, self.main_menu)
             case Acties.MAAK_NIEUWE_CONFIG:
+                self.model.set_active_cfg_path(None)
                 self.model.current_state_machine = StateMachines.CONFIG
-                await self.prompts.name_new_config(self.cbs.create_empty_cfg)
+                await self.prompts.name_new_config(self.cbs.create_cfg)
             case Acties.GENEREER_PLAATJES:
-                with open(self.model.active_config_name) as f:
+                with open(self.model.active_config_path) as f:
                     cfg = json.load(f)
                 termen = load_terms(cfg)
                 await self.prompts.show_progress_bar(self.state_machine)
                 await self.generate_images(termen)
 
     async def generate_images(self, termen):
-        with open(self.model.active_config_name) as f:
+        with open(self.model.active_config_path) as f:
             cfg = json.load(f)
 
         if not termen:
@@ -67,7 +69,8 @@ class Controller:
             await create_picture_async(term, cfg)
             await View.get().set_loading_bar(counter / len(termen) * 100)
 
-        View.get().set_success_message("De plaatjes zijn gegenereerd en aanwezig in folder " + Constants.OUTPUT_FOLDER)
+        output_folder = Utils.add_base_path(Constants.OUTPUT_FOLDER)
+        View.get().set_success_message("De plaatjes zijn gegenereerd en aanwezig in folder " + str(output_folder))
         await View.get().set_loading_bar(0, finished=True)
 
 
@@ -102,7 +105,7 @@ class Controller:
     async def finalize_config(self):
         self.model.active_config[CfgFields.COLUMN_LETTER] = self.compute_column_letter()
 
-        save_config(self.model.active_config, self.model.active_config_name)
+        save_config(self.model.active_config, self.model.get_active_cfg_name())
         self.model.current_state_machine = StateMachines.MAIN_MENU
         await self.state_machine()
 

@@ -1,4 +1,5 @@
 #This is an interface between control and view, part of the control layer, and should never import ViewInputPrompter to prevent circular import.
+from pathlib import Path
 from tkinter import filedialog
 from typing import List
 
@@ -6,6 +7,8 @@ import numpy as np
 import pandas
 from PIL import ImageFont
 
+import Constants
+import Utils
 from Constants import CfgFields, TypesMenu, StateMachines, Validations
 from Model import Model
 from RulesConfig import get_all_colors_in_column
@@ -82,7 +85,7 @@ class ControlInputHandler:
             case Validations.FONT:
                 valid, error, cfg_value = self.validation_font(user_input)
             case _:
-                valid = False
+                raise Exception("No validation defined.")
 
         if valid:
             if isinstance(cfg_value, list):
@@ -98,16 +101,19 @@ class ControlInputHandler:
 
 
     async def set_active_cfg(self, config_name):
-        self.model.set_active_cfg_name(config_name)
+        config_folder_path = Utils.add_base_path(Constants.CONFIG_FOLDER)
+        config_path = Path.joinpath(config_folder_path, config_name + ".json")
+        self.model.set_active_cfg(config_name)
+        self.model.set_active_cfg_path(config_path)
         await self.controller.state_machine()
 
-    async def create_empty_cfg(self, name):
-        cfg = {}
+    async def create_cfg(self, name):
         if not name.lower().endswith(".json"):
             name += ".json"
-        save_config(cfg, name)
-        self.model.set_active_cfg_name(name)
-        self.model.set_active_cfg(cfg)
+        config_folder = Utils.add_base_path(Constants.CONFIG_FOLDER)
+        cfg_path = Path.joinpath(config_folder, name)
+        Model.get().set_active_cfg_path(cfg_path)
+        self.model.set_active_cfg({})
         await self.controller.state_machine()
 
     async def handle_new_cfg_type_input(self, user_input):

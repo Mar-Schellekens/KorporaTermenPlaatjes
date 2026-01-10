@@ -2,8 +2,8 @@ from enum import StrEnum, Enum, auto
 
 
 class Validations(Enum):
-    TEXT = auto
-    NUMBER = auto
+    TEXT = auto()
+    NUMBER = auto()
     COLOR = auto()
     EXCEL_COLUMN = auto()
     COLOR_CELL_TYPE = auto()

@@ -1,3 +1,5 @@
+import traceback
+
 from textual.app import App, ComposeResult
 from textual.reactive import reactive
 from textual.widgets import Static, ListView, ListItem, Label, ProgressBar, RichLog, Input, Button
@@ -109,6 +111,12 @@ class View(App):
             if View is not None:
                 view.focus()
 
+    async def set_exception(self, error:Exception, trcbck):
+        self.set_error_message("Onverwachte fout. Als dit probleem zich blijft voordoen, neem dan contact op met de ontwikkelaar en geef de volgende foutmelding door:  \n\n\n" + str(error) \
+                               + "Traceback:" + trcbck)
+
+    async def on_error(self, error:Exception) -> None:
+        await self.set_exception(error, traceback.print_exc())
 
     def compose(self) -> ComposeResult:
         if self.show_success_message:
@@ -119,8 +127,8 @@ class View(App):
             yield Static("[red]" + self.error_message+ "[/red]")
             self.show_error_message = False
 
-        if Model.get().active_config_name is not None:
-            yield Static(f"Actieve configuratie: " + Model.get().active_config_name, id="config")
+        if Model.get().get_active_cfg_name() is not None:
+            yield Static(f"Actieve configuratie: " + Model.get().get_active_cfg_name(), id="config")
 
 
 
@@ -156,6 +164,9 @@ class View(App):
         await self.controller.state_machine()
 
     async def on_list_view_selected(self, event: ListView.Selected) -> None:
-        selected = event.item.query_one(Label).content
-        await self.callback(selected)
-
+       try:
+            selected = event.item.query_one(Label).content
+            await self.callback(selected)
+       except Exception as e:
+            await self.set_exception(e, traceback.format_exc())
+            await self.refresh_screen()

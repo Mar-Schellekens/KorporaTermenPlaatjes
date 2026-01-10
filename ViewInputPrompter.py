@@ -5,6 +5,7 @@ import os
 import pandas
 from openpyxl.reader.excel import load_workbook
 import Constants
+import Utils
 from Model import Model
 from RulesConfig import get_all_colors_in_column
 from View import View
@@ -56,7 +57,7 @@ class ViewInputPrompter:
 
     async def type_text_color(self, cb):
         await View.get().empty_screen()
-        View.get().set_text_input("Wat moet de tekstkleur zijn van dit type? Type de gewenste kleur als hexstring (bijv: \"#673489\")", cb)
+        View.get().set_text_input("Wat moet de tekstkleur zijn van dit type? Type de gewenste kleur als hexcode (bijv: #673489). Zie www.htmlcolorcodes.com om de kleur code te krijgen.", cb)
         await View.get().refresh_screen()
 
     async def type_name(self, cb):
@@ -87,7 +88,7 @@ class ViewInputPrompter:
 
     async def background_color(self, cb):
         await View.get().empty_screen()
-        View.get().set_text_input("Type de gewenste kleur van de achtergrond van het plaatje als hexstring (bijv: \"#673489\"", cb)
+        View.get().set_text_input("Type de gewenste kleur van de achtergrond van het plaatje als hexcode (bijv: #673489). Zie www.htmlcolorcodes.com om de kleur code te krijgen.", cb)
         await View.get().refresh_screen()
 
     async def width(self, cb):
@@ -122,11 +123,13 @@ class ViewInputPrompter:
         config_folder = add_base_path(Constants.CONFIG_FOLDER)
         cfg_files = glob.glob(os.path.join(config_folder, "*.json"))
 
+
         if len(cfg_files) == 0:
             View.get().set_message("Er bestaan nog geen configuratie bestanden.")
             await cb_no_configs()
 
-        View.get().set_list("Kies een input configuratie bestand:", cfg_files, cb)
+        names = map(Utils.get_file_name_from_path, cfg_files)
+        View.get().set_list("Kies een input configuratie bestand:", names, cb)
         await View.get().refresh_screen()
 
 
