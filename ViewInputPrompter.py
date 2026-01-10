@@ -1,12 +1,10 @@
 #This is an interface between control and view, part of the view layer, and should never import ControlInputHandler to prevent circular import.
 
-import asyncio
 import glob
 import os
 import pandas
 from openpyxl.reader.excel import load_workbook
 import Constants
-from CreatePicture import create_picture, create_picture_async
 from Model import Model
 from RulesConfig import get_all_colors_in_column
 from View import View

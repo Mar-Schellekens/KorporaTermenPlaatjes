@@ -1,4 +1,5 @@
-from enum import StrEnum, Enum
+from enum import StrEnum, Enum, auto
+
 
 class Validations(Enum):
     TEXT = 0
@@ -53,3 +54,12 @@ class Acties(StrEnum):
 CONFIG_FOLDER = "configuraties"
 OUTPUT_FOLDER = "images"
 
+
+class ViewState(Enum):
+    EMPTY = auto()
+    MESSAGE = auto()
+    TEXT_INPUT = auto()
+    NUMBER_INPUT = auto()
+    LIST = auto()
+    BUTTON = auto()
+    PROGRESS = auto()
