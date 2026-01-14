@@ -38,6 +38,8 @@ class Model:
    def set_config_type(self):
        self.check_types_not_empty()
        self.active_config["types"].append(copy.deepcopy(self.new_config_type))
+       self.new_config_type = {}
+       self.type_state_machine = {}
 
    def set_done_adding_types(self):
        self.check_types_not_empty()

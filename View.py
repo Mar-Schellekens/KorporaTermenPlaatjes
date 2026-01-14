@@ -28,6 +28,7 @@ class View(App):
         self.prompt = None
         self.list = None
         self.buttonText = None
+        self.type_names = None
 
         self.state: ViewState = ViewState.EMPTY
 
@@ -56,6 +57,8 @@ class View(App):
         self.callback = callback
         self.state = ViewState.TEXT_INPUT
 
+
+
     def set_number_input(self, prompt, callback):
         self.prompt = prompt
         self.callback= callback
@@ -66,6 +69,14 @@ class View(App):
         self.prompt = prompt
         self.callback = callback
         self.state = ViewState.BUTTON
+
+    def set_type_overview(self, type_names: list[str], prompt: str, lst: list, callback):
+        self.prompt = prompt
+        self.list = lst
+        self.callback = callback
+        self.type_names = "\n".join(type_names)
+        self.state = ViewState.TYPE_OVERVIEW
+
 
     def set_list(self, prompt, lst, callback):
         self.prompt = prompt
@@ -92,7 +103,6 @@ class View(App):
 
     async def empty_screen(self):
         self.state = ViewState.EMPTY
-        #await self.recompose()
 
     async def refresh_screen(self):
         await self.recompose()
@@ -138,6 +148,13 @@ class View(App):
             case ViewState.MESSAGE:
                 yield Static(self.prompt)
             case ViewState.LIST:
+                yield Static(self.prompt)
+                yield ListView(
+                    *[ListItem(Label(opt), name=opt) for opt in self.list])
+            case ViewState.TYPE_OVERVIEW:
+                if len(self.type_names)>0:
+                    yield Static("De volgende types zijn al aanwezig: \n")
+                    yield Static(self.type_names + "\n")
                 yield Static(self.prompt)
                 yield ListView(
                     *[ListItem(Label(opt), name=opt) for opt in self.list])

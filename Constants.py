@@ -67,6 +67,7 @@ class ViewState(Enum):
     EMPTY = auto()
     MESSAGE = auto()
     TEXT_INPUT = auto()
+    TYPE_OVERVIEW = auto()
     NUMBER_INPUT = auto()
     LIST = auto()
     BUTTON = auto()

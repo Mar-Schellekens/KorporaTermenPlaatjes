@@ -100,7 +100,13 @@ class ViewInputPrompter:
     async def types(self, cb):
         await View.get().empty_screen()
         list_options = ["Nieuw type toevoegen", "Doorgaan naar volgende stap"]
-        View.get().set_list("Een type zorgt ervoor dat bepaalde groepen, bepaalde tekstkleuren krijgen", list_options, cb)
+
+        type_names = []
+        if Constants.CfgFields.TYPES in Model.get().active_config:
+            for typ in Model.get().active_config[Constants.CfgFields.TYPES]:
+                type_names.append(typ[Constants.CfgFields.TYPES_NAME])
+
+        View.get().set_type_overview(type_names, "Een type zorgt ervoor dat bepaalde groepen, bepaalde tekstkleuren krijgen", list_options, cb)
         await View.get().refresh_screen()
 
     async def margin(self, cb):
