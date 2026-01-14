@@ -139,6 +139,9 @@ class ControlInputHandler:
     async def set_type_cell_color_type_in_cfg(self, user_input):
         await self.set_field_in_cfg([CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE, CfgFields.TYPES_EXCEL_FILE_CELL_COLOR], user_input, Validations.COLOR_CELL_TYPE)
 
+    async def set_match_string_in_cfg(self, user_input):
+        await self.set_field_in_cfg(CfgFields.TYPES_MATCH_STRING, user_input, Validations.TEXT)
+
     async def set_type_method_in_cfg(self, user_input):
         await self.set_field_in_cfg(CfgFields.TYPES_METHOD, user_input, Validations.TEXT)
 

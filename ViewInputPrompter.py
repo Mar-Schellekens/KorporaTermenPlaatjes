@@ -6,6 +6,7 @@ import pandas
 from openpyxl.reader.excel import load_workbook
 import Constants
 import Utils
+from Constants import TypesMethod
 from Model import Model
 from RulesConfig import get_all_colors_in_column
 from View import View
@@ -34,8 +35,39 @@ class ViewInputPrompter:
         await View.get().empty_screen()
         config = Model.get().get_active_cfg()
         df = pandas.read_excel(config["input_file_name"])
-        View.get().set_list("Welke kolom bevat de kleur?", df.columns, cb)
+
+        if Model.get().new_config_type[Constants.CfgFields.TYPES_METHOD] == TypesMethod.CEL_KLEUR:
+            prompt = "Welke kolom bevat de kleur die bepaalt of iets bij dit type hoort?"
+        elif Model.get().new_config_type[Constants.CfgFields.TYPES_METHOD] == TypesMethod.CEL_INHOUD:
+            prompt = "Welke kolom bevat de tekst die bepaalt of iets bij dit type hoort?"
+        else:
+            raise Exception("Config type method field somehow has an unvalid value")
+
+        View.get().set_list(prompt, df.columns, cb)
         await View.get().refresh_screen()
+
+    async def cell_content_type(self, cb):
+        await View.get().empty_screen()
+        config = Model.get().get_active_cfg()
+        configType = Model.get().get_new_config_type()
+        wb = load_workbook(config["input_file_name"])
+        ws = wb.active
+        column = configType["column"]  # column to scan
+
+        values = []
+        for i, row in enumerate(ws):
+            if Model.get().active_config[Constants.CfgFields.FILE_HAS_HEADER] == "ja":
+                if i == 0:
+                    continue
+            value = row[column].value
+            if value not in values and value is not None:
+                values.append(value)
+
+        if len(values) == 0:
+            raise Exception("Er zijn geen waardes aanwezig in de aangegeven kolom")
+        View.get().set_list("Welke waarde moet een cel bevatten om bij dit type te horen?", values, cb)
+        await View.get().refresh_screen()
+
 
     async def cell_color_type(self, cb):
         await View.get().empty_screen()
@@ -52,7 +84,7 @@ class ViewInputPrompter:
 
     async def type_method(self, cb):
         await View.get().empty_screen()
-        View.get().set_list("Wil je bepalen via celkleur of celinhoud, of iets bij dit type hoort?", ["celkleur", "celinhoud"], cb)
+        View.get().set_list("Wil je bepalen via celkleur of celinhoud, of iets bij dit type hoort?", [TypesMethod.CEL_KLEUR, TypesMethod.CEL_INHOUD], cb)
         await View.get().refresh_screen()
 
     async def type_text_color(self, cb):

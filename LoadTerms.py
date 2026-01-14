@@ -1,6 +1,6 @@
 import pandas
 from openpyxl import load_workbook
-from Constants import CfgFields
+from Constants import CfgFields, TypesMethod
 from Term import Term
 
 def classify_cell(cell, types):
@@ -13,6 +13,9 @@ def classify_cell(cell, types):
             elif typ[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "rgb":
                 if cell[column_index].fill.start_color.rgb == typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
                     return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
+        elif typ[CfgFields.TYPES_METHOD] == TypesMethod.CEL_INHOUD:
+            if cell[column_index].value == typ[CfgFields.TYPES_MATCH_STRING]:
+                return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
     return "#000000"
 
 def load_terms(cfg):

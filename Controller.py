@@ -117,8 +117,17 @@ class Controller:
             (CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR, self.prompts.type_text_color, self.cbs.set_type_text_color_in_cfg),
             (CfgFields.TYPES_METHOD, self.prompts.type_method, self.cbs.set_type_method_in_cfg),
             (CfgFields.TYPES_COLUMN, self.prompts.type_column, self.cbs.set_type_column_field_in_cfg),
-            (CfgFields.TYPES_EXCEL_FILE_CELL_COLOR, self.prompts.cell_color_type, self.cbs.set_type_cell_color_type_in_cfg),
         ]
+
+        if CfgFields.TYPES_METHOD in Model.get().new_config_type:
+            if Model.get().new_config_type[CfgFields.TYPES_METHOD] == Constants.TypesMethod.CEL_KLEUR:
+                cell_color = (CfgFields.TYPES_EXCEL_FILE_CELL_COLOR, self.prompts.cell_color_type, self.cbs.set_type_cell_color_type_in_cfg)
+                steps.append(cell_color)
+            elif Model.get().new_config_type[CfgFields.TYPES_METHOD] == Constants.TypesMethod.CEL_INHOUD:
+                match_string = (CfgFields.TYPES_MATCH_STRING, self.prompts.cell_content_type, self.cbs.set_match_string_in_cfg)
+                steps.append(match_string)
+            else:
+                raise Exception("Types method field in active config somehow has a non-supported value.")
 
         for key, prompt_fn, cb in steps:
             if key not in state_machine:

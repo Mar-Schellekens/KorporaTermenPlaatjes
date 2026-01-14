@@ -19,6 +19,10 @@ class TypesMenu(StrEnum):
     ADD = "Nieuw type toevoegen"
     CONT = "Doorgaan naar volgende stap"
 
+class TypesMethod(StrEnum):
+    CEL_KLEUR = "celkleur"
+    CEL_INHOUD = "celinhoud"
+
 class CfgFields(StrEnum):
     INPUT_FILE_NAME = "input_file_name"
     FILE_HAS_HEADER = "file_has_header"
@@ -30,6 +34,7 @@ class CfgFields(StrEnum):
     TYPES_COLUMN = "column"
     TYPES_EXCEL_FILE_COLOR_TYPE = "excel_file_color_type"
     TYPES_EXCEL_FILE_CELL_COLOR = "excel_file_cell_color"
+    TYPES_MATCH_STRING = "match_string"
     WIDTH = "width"
     HEIGHT = "height"
     BACKGROUND_COLOR = "background_color"
@@ -38,12 +43,14 @@ class CfgFields(StrEnum):
     MARGIN = "margin"
     COLUMN_LETTER = "column_letter"
 
+
 TYPE_FIELDS = [CfgFields.TYPES_NAME,
                CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR,
                CfgFields.TYPES_METHOD,
                CfgFields.TYPES_COLUMN,
                CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE,
-               CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]
+               CfgFields.TYPES_EXCEL_FILE_CELL_COLOR,
+               CfgFields.TYPES_MATCH_STRING,]
 
 class Acties(StrEnum):
     MAAK_NIEUWE_CONFIG = "Maak een compleet nieuwe configuratie."
