@@ -21,6 +21,7 @@ class View(App):
     """A simple Textual app with 4 selectable options."""
     def __init__(self):
         super().__init__()
+        self.list_colors = None
         self.progress = ProgressBar(total=100, show_eta=False)
 
         self.callback = None
@@ -78,9 +79,12 @@ class View(App):
         self.state = ViewState.TYPE_OVERVIEW
 
 
-    def set_list(self, prompt, lst, callback):
+    def set_list(self, prompt, lst, callback, colors=None):
         self.prompt = prompt
         self.list = lst
+        if colors is not None:
+            if len(colors) == len(lst):
+                self.list_colors = colors
         self.callback = callback
         self.state = ViewState.LIST
 

@@ -14,7 +14,9 @@ def add_base_path(relative_path: str) -> Path:
     return base_path / relative_path
 
 def convert_excel_colors_to_string(list_of_color_tuples):
-    return [f"{value}. {ctype}" for value, ctype in list_of_color_tuples]
+    strings = [f"{value}. {ctype}" for value, ctype, _ in list_of_color_tuples]
+    hex_colors = [hex_color for _, _, hex_color in list_of_color_tuples]
+    return strings, hex_colors
 
 def load_excel_file(file_name):
     workbook = load_workbook(file_name)

@@ -78,7 +78,8 @@ class ViewInputPrompter:
 
         column = configType["column"]  # column to scan
         all_colors = get_all_colors_in_column(ws, column, wb)
-        all_colors_string = convert_excel_colors_to_string(all_colors)
+
+        all_colors_string, hex_colors = convert_excel_colors_to_string(all_colors)
         View.get().set_list("Welke kleur hoort bij dit type?", all_colors_string, cb)
         await View.get().refresh_screen()
 
