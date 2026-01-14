@@ -132,6 +132,13 @@ class View(App):
     async def on_error(self, error:Exception) -> None:
         await self.set_exception(error, traceback.print_exc())
 
+    def get_list_items(self):
+        if self.list_colors is not None:
+            if len(self.list_colors) == len(self.list):
+                return [ListItem(Label(f"[{color}]{opt}[/]"), name=opt) for opt, color in zip(self.list, self.list_colors)]
+
+        return [ListItem(Label(opt), name=opt) for opt in self.list]
+
     def compose(self) -> ComposeResult:
         if self.show_success_message:
             yield Static("[green]" + self.success_message+ "[/green]")
@@ -144,8 +151,6 @@ class View(App):
         if Model.get().get_active_cfg_name() is not None:
             yield Static(f"Actieve configuratie: " + Model.get().get_active_cfg_name(), id="config")
 
-
-
         match self.state:
             case ViewState.PROGRESS:
                 yield self.progress
@@ -153,8 +158,8 @@ class View(App):
                 yield Static(self.prompt)
             case ViewState.LIST:
                 yield Static(self.prompt)
-                yield ListView(
-                    *[ListItem(Label(opt), name=opt) for opt in self.list])
+                list_items = self.get_list_items()
+                yield ListView(*list_items)
             case ViewState.TYPE_OVERVIEW:
                 if len(self.type_names)>0:
                     yield Static("De volgende types zijn al aanwezig: \n")

@@ -37,7 +37,7 @@ class ControlInputHandler:
         config_type = self.model.get_new_config_type()
         column = config_type[CfgFields.TYPES_COLUMN]  # column to scan
         all_colors = get_all_colors_in_column(worksheet, column, workbook)
-        all_colors_string = convert_excel_colors_to_string(all_colors)
+        all_colors_string, _ = convert_excel_colors_to_string(all_colors)
         idx = all_colors_string.index(user_input)
 
         cfg_value_1 = all_colors[idx][0]

@@ -66,7 +66,7 @@ def get_cell_color(cell, workbook):
         return None
 
     if color.type == "rgb":
-        return "rgb", color.rgb, color.rgb  # Already in hex
+        return "rgb", color.rgb, f"#{color.rgb[-6:]}"
     elif color.type == "theme":
         theme_colors = get_theme_colors(workbook)
         if color.theme >= len(theme_colors):
