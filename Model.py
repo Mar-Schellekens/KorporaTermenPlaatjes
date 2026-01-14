@@ -31,12 +31,16 @@ class Model:
    def get_new_config_type(self):
        return self.new_config_type
 
-   def set_config_type(self):
+   def check_types_not_empty(self):
        if "types" not in self.active_config:
            self.active_config["types"] = []
+
+   def set_config_type(self):
+       self.check_types_not_empty()
        self.active_config["types"].append(copy.deepcopy(self.new_config_type))
 
    def set_done_adding_types(self):
+       self.check_types_not_empty()
        Model.get().config_state_machine[CfgFields.TYPES] = True
 
    def set_active_cfg_field(self, field_name, value=None):
