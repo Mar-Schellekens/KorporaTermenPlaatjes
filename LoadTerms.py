@@ -3,20 +3,31 @@ from openpyxl import load_workbook
 from Constants import CfgFields, TypesMethod
 from Term import Term
 
+def classify_by_color(typ, cell, column_index):
+    if typ[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "theme":
+        if str(cell[column_index].fill.start_color.theme) == typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
+            return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
+    elif typ[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "rgb":
+        if cell[column_index].fill.start_color.rgb == typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
+            return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
+    return "#000000"
+
+def classify_by_value(typ, cell, column_index):
+    if cell[column_index].value == typ[CfgFields.TYPES_MATCH_STRING]:
+        return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
+    return "#000000"
+
 def classify_cell(cell, types):
     for typ in types:
         column_index = typ[CfgFields.TYPES_COLUMN]
         if typ[CfgFields.TYPES_METHOD] == "celkleur":
-            if typ[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "theme":
-                if str(cell[column_index].fill.start_color.theme) == typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
-                    return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
-            elif typ[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "rgb":
-                if cell[column_index].fill.start_color.rgb == typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
-                    return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
+            return classify_by_color(typ, cell, column_index)
         elif typ[CfgFields.TYPES_METHOD] == TypesMethod.CEL_INHOUD:
-            if cell[column_index].value == typ[CfgFields.TYPES_MATCH_STRING]:
-                return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
+            return classify_by_value(typ, cell, column_index)
+
     return "#000000"
+
+
 
 def load_terms(cfg):
     df = pandas.read_excel(cfg[CfgFields.INPUT_FILE_NAME])
