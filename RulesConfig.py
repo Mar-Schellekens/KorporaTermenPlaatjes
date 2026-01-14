@@ -14,8 +14,8 @@ def get_all_colors_in_column(sheet, col_index, workbook):
     """Returns a set of all unique colors in a column."""
     colors = []
 
-    for row in sheet.iter_rows(min_col=col_index, max_col=col_index):
-        cell = row[0]
+    for row in sheet.iter_rows():
+        cell = row[col_index]
         type, value = get_cell_color(cell, workbook)
         if (type, value) not in colors:
             colors.append((type, value))

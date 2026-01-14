@@ -111,7 +111,7 @@ class View(App):
             if view is not None:
                 view.focus()
 
-        if self.state == ViewState.LIST:
+        if self.state == ViewState.LIST or self.state == ViewState.TYPE_OVERVIEW:
             view = self.query_one(ListView)
             if view is not None:
                 view.focus()

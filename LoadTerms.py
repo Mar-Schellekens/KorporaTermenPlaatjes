@@ -6,24 +6,26 @@ from Term import Term
 def classify_by_color(typ, cell, column_index):
     if typ[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "theme":
         if str(cell[column_index].fill.start_color.theme) == typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
-            return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
+            return True
     elif typ[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "rgb":
         if cell[column_index].fill.start_color.rgb == typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
-            return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
-    return "#000000"
+            return True
+    return False
 
 def classify_by_value(typ, cell, column_index):
     if cell[column_index].value == typ[CfgFields.TYPES_MATCH_STRING]:
-        return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
-    return "#000000"
+        return True
+    return False
 
 def classify_cell(cell, types):
     for typ in types:
         column_index = typ[CfgFields.TYPES_COLUMN]
         if typ[CfgFields.TYPES_METHOD] == "celkleur":
-            return classify_by_color(typ, cell, column_index)
+            if classify_by_color(typ, cell, column_index):
+                return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
         elif typ[CfgFields.TYPES_METHOD] == TypesMethod.CEL_INHOUD:
-            return classify_by_value(typ, cell, column_index)
+            if classify_by_value(typ, cell, column_index):
+                return typ[CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR]
 
     return "#000000"
 
