@@ -138,7 +138,7 @@ class ViewInputPrompter:
 
     async def font(self, cb):
         await View.get().empty_screen()
-        View.get().set_text_input("Type de naam van het font dat je wil gebruiken.", cb)
+        View.get().set_text_input("Type de naam van het font dat je wil gebruiken, of de locatie van het ttf bestand.", cb)
         await View.get().refresh_screen()
 
     async def background_color(self, cb):

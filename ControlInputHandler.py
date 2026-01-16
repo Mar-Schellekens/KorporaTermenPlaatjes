@@ -61,7 +61,7 @@ class ControlInputHandler:
             ImageFont.truetype(user_input, 12)
             return True, None, user_input
         except IOError:
-            error = "Dat is geen valide font op dit systeem"
+            error = "Kan font niet vinden - probeer locatie van ttf bestand, dit werkt vaak beter. Ga naar Lettertypen in Windows instellingen. Klik op een font, en je ziet de bestandslocatie."
             return False, error, user_input
 
 
