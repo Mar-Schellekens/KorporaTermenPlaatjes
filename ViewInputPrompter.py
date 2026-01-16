@@ -106,14 +106,24 @@ class ViewInputPrompter:
 
     async def types(self, cb):
         await View.get().empty_screen()
-        list_options = ["Nieuw type toevoegen", "Doorgaan naar volgende stap"]
 
         type_names = []
         if Constants.CfgFields.TYPES.value in Model.get().active_config:
             for typ in Model.get().active_config[Constants.CfgFields.TYPES.value]:
                 type_names.append(typ[Constants.CfgFields.TYPES_NAME.value])
 
-        View.get().set_type_overview(type_names, "Een type zorgt ervoor dat bepaalde groepen, bepaalde tekstkleuren krijgen", list_options, cb)
+
+        options = [Constants.TypesMenu.ADD, Constants.TypesMenu.CONT]
+
+        types = []
+        if Constants.CfgFields.TYPES.value in Model.get().active_config:
+            types = Model.get().active_config[Constants.CfgFields.TYPES.value]
+
+        if len(types)>0:
+            options.append(Constants.TypesMenu.DEL)
+
+        View.get().set_type_overview(type_names, "Een type zorgt ervoor dat bepaalde groepen, bepaalde tekstkleuren krijgen", list(
+            options), cb)
         await View.get().refresh_screen()
 
     async def margin(self, cb):
@@ -175,6 +185,13 @@ class ViewInputPrompter:
 
         names = map(Utils.get_file_name_from_path, cfg_files)
         View.get().set_list("Kies een input configuratie bestand:", names, cb)
+        await View.get().refresh_screen()
+
+    async def delete_type(self, cb):
+        await View.get().empty_screen()
+        types_raw = Model.get().active_config[CfgFields.TYPES.value]
+        types = [t[CfgFields.TYPES_NAME.value]  for t in types_raw]
+        View.get().set_list("Welk type wil je verwijderen?", types, cb)
         await View.get().refresh_screen()
 
 

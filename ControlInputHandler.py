@@ -130,6 +130,8 @@ class ControlInputHandler:
             self.model.current_state_machine = StateMachines.CFG_TYPE
         elif user_input == TypesMenu.CONT:
             self.model.set_done_adding_types()
+        elif user_input == TypesMenu.DEL:
+            Model.get().current_state_machine = StateMachines.DELETE_TYPE
 
         await self.controller.state_machine()
 
@@ -194,6 +196,19 @@ class ControlInputHandler:
                 Model.get().set_active_cfg_field(field.value, existing_config[field.value])
 
         await self.controller.state_machine()
+
+    async def delete_type(self, user_input):
+        types_raw = Model.get().active_config[CfgFields.TYPES.value]
+        for i, type_raw in enumerate(types_raw):
+            if type_raw[CfgFields.TYPES_NAME.value] == user_input:
+                Model.get().active_config[CfgFields.TYPES.value].pop(i)
+                break
+
+        Model.get().current_state_machine = StateMachines.CONFIG
+
+        await self.controller.state_machine()
+
+
 
 
 

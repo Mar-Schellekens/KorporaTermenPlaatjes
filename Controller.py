@@ -22,13 +22,17 @@ class Controller:
         handlers = {
             StateMachines.MAIN_MENU: self.main_menu,
             StateMachines.CONFIG: self.config_state_machine,
-            StateMachines.CFG_TYPE: self.config_type_state_machine
+            StateMachines.CFG_TYPE: self.config_type_state_machine,
+            StateMachines.DELETE_TYPE: self.delete_type
         }
 
         handler = handlers.get(self.model.current_state_machine)
         if not handler:
             raise RuntimeError(f"No handler for state {self.model.current_state_machine}")
         await handler()
+
+    async def delete_type(self):
+        await self.prompts.delete_type(self.cbs.delete_type)
 
     async def main_menu(self):
         self.reset_config_state_machines()

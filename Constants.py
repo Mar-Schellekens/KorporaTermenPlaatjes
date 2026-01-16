@@ -15,9 +15,11 @@ class StateMachines(Enum):
     MAIN_MENU = 0
     CONFIG = 1,
     CFG_TYPE = 2
+    DELETE_TYPE = 3
 
 class TypesMenu(StrEnum):
     ADD = "Nieuw type toevoegen"
+    DEL = "Een type verwijderen"
     CONT = "Doorgaan naar volgende stap"
 
 class TypesMethod(StrEnum):
@@ -28,7 +30,7 @@ class CfgFields(BetterEnum):
     INPUT_FILE_NAME = "input_file_name", "Naam van het excel bestand waar de termen in staan."
     FILE_HAS_HEADER = "file_has_header", "Of de eerste rij van het bestand de koptekst is"
     COLUMN_NAME = "column_name", "Welke kolom de termen bevat"
-    TYPES = "types", "Een type aanpassen... (Een type zorgt ervoor dat bepaalde groepen, bepaalde tekstkleuren krijgen)"
+    TYPES = "types", "Een type verwijderen of toevoegen"
     TYPES_NAME = "name", "De naam van het type"
     TYPES_GENERATED_IMAGE_TEXT_COLOR = "generated_image_text_color", "Welke kleur tekst het gegenereerde plaatje moet hebben als het bij dit type hoort."
     TYPES_METHOD = "method", "Of de celkleur, of celinhoud bepaalt of een term bij dit type hoort"
