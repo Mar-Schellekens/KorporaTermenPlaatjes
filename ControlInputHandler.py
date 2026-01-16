@@ -1,4 +1,5 @@
 #This is an interface between control and view, part of the control layer, and should never import ViewInputPrompter to prevent circular import.
+import json
 import re
 from pathlib import Path
 from tkinter import filedialog
@@ -10,7 +11,7 @@ from PIL import ImageFont
 
 import Constants
 import Utils
-from Constants import CfgFields, TypesMenu, StateMachines, Validations
+from Constants import CfgFields, TypesMenu, StateMachines, Validations, TYPE_FIELDS
 from Model import Model
 from RulesConfig import get_all_colors_in_column
 from Utils import convert_excel_colors_to_string, load_excel_file, save_config, is_valid_hex_color
@@ -24,7 +25,7 @@ class ControlInputHandler:
 
     def validation_excel_column(self, user_input):
         cfg = self.model.get_active_cfg()
-        df = pandas.read_excel(cfg[CfgFields.INPUT_FILE_NAME])
+        df = pandas.read_excel(cfg[CfgFields.INPUT_FILE_NAME.value])
         cfg_value = int(np.where(df.columns.values == user_input)[0][0])
         return True, None, cfg_value
 
@@ -34,12 +35,12 @@ class ControlInputHandler:
         user_input = re.sub(r"\[.*?\]", "", user_input)
 
         config = self.model.get_active_cfg()
-        file_name = config[CfgFields.INPUT_FILE_NAME]
+        file_name = config[CfgFields.INPUT_FILE_NAME.value]
         workbook, worksheet = load_excel_file(file_name)
 
         # Find the right values using worksheet and user_input
         config_type = self.model.get_new_config_type()
-        column = config_type[CfgFields.TYPES_COLUMN]  # column to scan
+        column = config_type[CfgFields.TYPES_COLUMN.value]  # column to scan
         all_colors = get_all_colors_in_column(worksheet, column, workbook)
         all_colors_string, _ = convert_excel_colors_to_string(all_colors)
         idx = all_colors_string.index(user_input)
@@ -104,11 +105,15 @@ class ControlInputHandler:
         await self.controller.state_machine()
 
 
+
+
     async def set_active_cfg(self, config_name):
         config_folder_path = Utils.add_base_path(Constants.CONFIG_FOLDER)
         config_path = Path.joinpath(config_folder_path, config_name + ".json")
-        self.model.set_active_cfg(config_name)
         self.model.set_active_cfg_path(config_path)
+        with open(config_path) as f:
+            cfg = json.load(f)
+        self.model.set_active_cfg(cfg)
         await self.controller.state_machine()
 
     async def create_cfg(self, name):
@@ -135,47 +140,63 @@ class ControlInputHandler:
             title="Kies een bestand",
             filetypes=(("Excel files", "*.xlsx *.xls"), ("All files", "*.*"))
         )
-        await self.set_field_in_cfg(CfgFields.INPUT_FILE_NAME, file_path, Validations.TEXT)
+        await self.set_field_in_cfg(CfgFields.INPUT_FILE_NAME.value, file_path, Validations.TEXT)
 
     async def set_type_column_field_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.TYPES_COLUMN, user_input, Validations.EXCEL_COLUMN)
+        await self.set_field_in_cfg(CfgFields.TYPES_COLUMN.value, user_input, Validations.EXCEL_COLUMN)
 
     async def set_type_cell_color_type_in_cfg(self, user_input):
-        await self.set_field_in_cfg([CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE, CfgFields.TYPES_EXCEL_FILE_CELL_COLOR], user_input, Validations.COLOR_CELL_TYPE)
+        await self.set_field_in_cfg([CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE.value, CfgFields.TYPES_EXCEL_FILE_CELL_COLOR.value], user_input, Validations.COLOR_CELL_TYPE)
 
     async def set_match_string_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.TYPES_MATCH_STRING, user_input, Validations.TEXT)
+        await self.set_field_in_cfg(CfgFields.TYPES_MATCH_STRING.value, user_input, Validations.TEXT)
 
     async def set_type_method_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.TYPES_METHOD, user_input, Validations.TEXT)
+        await self.set_field_in_cfg(CfgFields.TYPES_METHOD.value, user_input, Validations.TEXT)
 
     async def set_type_name_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.TYPES_NAME, user_input, Validations.TEXT)
+        await self.set_field_in_cfg(CfgFields.TYPES_NAME.value, user_input, Validations.TEXT)
 
     async def set_type_text_color_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR, user_input, Validations.COLOR)
+        await self.set_field_in_cfg(CfgFields.TYPES_GENERATED_IMAGE_TEXT_COLOR.value, user_input, Validations.COLOR)
 
     async def set_margin_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.MARGIN, user_input, Validations.NUMBER)
+        await self.set_field_in_cfg(CfgFields.MARGIN.value, user_input, Validations.NUMBER)
 
     async def set_font_size_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.FONT_SIZE, user_input, Validations.NUMBER)
+        await self.set_field_in_cfg(CfgFields.FONT_SIZE.value, user_input, Validations.NUMBER)
 
     async def set_font_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.FONT, user_input, Validations.FONT)
+        await self.set_field_in_cfg(CfgFields.FONT.value, user_input, Validations.FONT)
 
     async def set_bg_color_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.BACKGROUND_COLOR, user_input, Validations.COLOR)
+        await self.set_field_in_cfg(CfgFields.BACKGROUND_COLOR.value, user_input, Validations.COLOR)
 
     async def set_width_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.WIDTH, user_input, Validations.NUMBER)
+        await self.set_field_in_cfg(CfgFields.WIDTH.value, user_input, Validations.NUMBER)
 
     async def set_height_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.HEIGHT, user_input, Validations.NUMBER)
+        await self.set_field_in_cfg(CfgFields.HEIGHT.value, user_input, Validations.NUMBER)
 
     async def set_column_name_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.COLUMN_NAME, user_input, Validations.TEXT)
+        await self.set_field_in_cfg(CfgFields.COLUMN_NAME.value, user_input, Validations.TEXT)
 
     async def set_header_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.FILE_HAS_HEADER, user_input, Validations.TEXT)
+        await self.set_field_in_cfg(CfgFields.FILE_HAS_HEADER.value, user_input, Validations.TEXT)
+
+    async def start_modify_field(self, user_input):
+        chosen_field = CfgFields.from_any(user_input)
+        existing_config = Model.get().active_config
+
+        #coyp existing config
+        for field in list(CfgFields):
+            if field not in TYPE_FIELDS and field != chosen_field:
+                Model.get().set_active_cfg_field(field.value, existing_config[field.value])
+
+        await self.controller.state_machine()
+
+
+
+
+
 

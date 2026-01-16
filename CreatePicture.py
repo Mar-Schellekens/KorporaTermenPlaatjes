@@ -84,7 +84,7 @@ def reached_last_line(line, lines):
     return idx == len(lines) - 1
 
 def draw_text(cfg, text, draw, font):
-    max_text_width = cfg[CfgFields.WIDTH] - (cfg[CfgFields.MARGIN] * 2)
+    max_text_width = cfg[CfgFields.WIDTH.value] - (cfg[CfgFields.MARGIN.value] * 2)
     capitalized_text = capitalize_each_word(text)
 
     lines = [capitalized_text]
@@ -107,15 +107,15 @@ async def create_picture_async(term, style_cfg):
     await loop.run_in_executor(None, create_picture, term, style_cfg)
 
 def create_picture(term:Term, cfg):
-    imageFormat = Image.new("RGB", (cfg[CfgFields.WIDTH], cfg[CfgFields.HEIGHT]), cfg[CfgFields.BACKGROUND_COLOR])
+    imageFormat = Image.new("RGB", (cfg[CfgFields.WIDTH.value], cfg[CfgFields.HEIGHT.value]), cfg[CfgFields.BACKGROUND_COLOR.value])
     image = ImageDraw.Draw(imageFormat)
 
     # Load default font or a TTF font if available
     try:
-        font = ImageFont.truetype(cfg[CfgFields.FONT], cfg[CfgFields.FONT_SIZE])
+        font = ImageFont.truetype(cfg[CfgFields.FONT.value], cfg[CfgFields.FONT_SIZE.value])
     except IOError:
-        print(f"Font {cfg[CfgFields.FONT]} niet gevonden. Gebruik standaard font in plaats daarvan.")
-        font = ImageFont.truetype("DejaVuSans.ttf", cfg[CfgFields.FONT_SIZE])
+        print(f"Font {cfg[CfgFields.FONT.value]} niet gevonden. Gebruik standaard font in plaats daarvan.")
+        font = ImageFont.truetype("DejaVuSans.ttf", cfg[CfgFields.FONT_SIZE.value])
 
 
     text = draw_text(cfg, term.text, image, font)

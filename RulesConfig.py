@@ -95,7 +95,7 @@ def get_all_colors_in_column(sheet, col_index, workbook):
     colors = []
 
     min_row = 1
-    if Model.get().active_config[CfgFields.FILE_HAS_HEADER]:
+    if Model.get().active_config[CfgFields.FILE_HAS_HEADER.value]:
         min_row = 2
 
     for row in sheet.iter_rows(min_row = min_row):

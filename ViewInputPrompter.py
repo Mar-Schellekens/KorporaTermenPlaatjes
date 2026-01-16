@@ -6,7 +6,7 @@ import pandas
 from openpyxl.reader.excel import load_workbook
 import Constants
 import Utils
-from Constants import TypesMethod
+from Constants import TypesMethod, CfgFields, TYPE_FIELDS
 from Model import Model
 from RulesConfig import get_all_colors_in_column
 from View import View
@@ -15,6 +15,12 @@ from Utils import add_base_path, convert_excel_colors_to_string
 class ViewInputPrompter:
     async def exit(self):
         await View.get().action_quit()
+
+    async def show_modify_config(self, cb):
+        await View.get().empty_screen()
+        options = [f.display for f in CfgFields if f.display is not None and f not in TYPE_FIELDS]
+        View.get().set_list("Welk deel van de configuratie wil je aanpassen?", options, cb)
+        await View.get().refresh_screen()
 
     async def show_main_menu(self, actions, cb):
         await View.get().empty_screen()
@@ -36,9 +42,9 @@ class ViewInputPrompter:
         config = Model.get().get_active_cfg()
         df = pandas.read_excel(config["input_file_name"])
 
-        if Model.get().new_config_type[Constants.CfgFields.TYPES_METHOD] == TypesMethod.CEL_KLEUR:
+        if Model.get().new_config_type[Constants.CfgFields.TYPES_METHOD.value] == TypesMethod.CEL_KLEUR:
             prompt = "Welke kolom bevat de kleur die bepaalt of iets bij dit type hoort?"
-        elif Model.get().new_config_type[Constants.CfgFields.TYPES_METHOD] == TypesMethod.CEL_INHOUD:
+        elif Model.get().new_config_type[Constants.CfgFields.TYPES_METHOD.value] == TypesMethod.CEL_INHOUD:
             prompt = "Welke kolom bevat de tekst die bepaalt of iets bij dit type hoort?"
         else:
             raise Exception("Config type method field somehow has an unvalid value")
@@ -56,7 +62,7 @@ class ViewInputPrompter:
 
         values = []
         for i, row in enumerate(ws):
-            if Model.get().active_config[Constants.CfgFields.FILE_HAS_HEADER] == "ja":
+            if Model.get().active_config[Constants.CfgFields.FILE_HAS_HEADER.value] == "ja":
                 if i == 0:
                     continue
             value = row[column].value
@@ -103,9 +109,9 @@ class ViewInputPrompter:
         list_options = ["Nieuw type toevoegen", "Doorgaan naar volgende stap"]
 
         type_names = []
-        if Constants.CfgFields.TYPES in Model.get().active_config:
-            for typ in Model.get().active_config[Constants.CfgFields.TYPES]:
-                type_names.append(typ[Constants.CfgFields.TYPES_NAME])
+        if Constants.CfgFields.TYPES.value in Model.get().active_config:
+            for typ in Model.get().active_config[Constants.CfgFields.TYPES.value]:
+                type_names.append(typ[Constants.CfgFields.TYPES_NAME.value])
 
         View.get().set_type_overview(type_names, "Een type zorgt ervoor dat bepaalde groepen, bepaalde tekstkleuren krijgen", list_options, cb)
         await View.get().refresh_screen()

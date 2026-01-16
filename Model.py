@@ -43,16 +43,17 @@ class Model:
 
    def set_done_adding_types(self):
        self.check_types_not_empty()
-       Model.get().config_state_machine[CfgFields.TYPES] = True
+       Model.get().config_state_machine[CfgFields.TYPES.value] = True
+
 
    def set_active_cfg_field(self, field_name, value=None):
        if value is not None:
-           if field_name in TYPE_FIELDS:
+           if field_name in [t.value for t in TYPE_FIELDS]:
                self.new_config_type[field_name] = value
            else:
             self.active_config[field_name] = value
 
-       if field_name in TYPE_FIELDS:
+       if field_name in [t.value for t in TYPE_FIELDS]:
             self.type_state_machine[field_name] = True
        else:
             Model.get().config_state_machine[field_name] = True
