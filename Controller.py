@@ -90,7 +90,6 @@ class Controller:
 
         steps = [
             (CfgFields.INPUT_FILE_NAME.value, self.prompts.input_excel_file, self.cbs.let_user_pick_excel_input),
-            (CfgFields.FILE_HAS_HEADER.value, self.prompts.header, self.cbs.set_header_in_cfg),
             (CfgFields.COLUMN_NAME.value, self.prompts.column_name, self.cbs.set_column_name_in_cfg),
             (CfgFields.WIDTH.value, self.prompts.width, self.cbs.set_width_in_cfg),
             (CfgFields.HEIGHT.value, self.prompts.height, self.cbs.set_height_in_cfg),

@@ -49,9 +49,7 @@ def load_terms(cfg):
     wb = load_workbook(cfg[CfgFields.INPUT_FILE_NAME.value])
     ws = wb.active
     colors = [classify_cell(row, cfg[CfgFields.TYPES.value]) for row in ws.iter_rows()]
-
-    if cfg[CfgFields.FILE_HAS_HEADER.value]:
-        colors = colors[1:] #Remove header row
+    colors = colors[1:] #Remove header row
 
     termObjects = []
     for term, color in zip(termen, colors):

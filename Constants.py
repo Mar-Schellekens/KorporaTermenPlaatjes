@@ -28,7 +28,6 @@ class TypesMethod(StrEnum):
 
 class CfgFields(BetterEnum):
     INPUT_FILE_NAME = "input_file_name", "Naam van het excel bestand waar de termen in staan."
-    FILE_HAS_HEADER = "file_has_header", "Of de eerste rij van het bestand de koptekst is"
     COLUMN_NAME = "column_name", "Welke kolom de termen bevat"
     TYPES = "types", "Een type verwijderen of toevoegen"
     TYPES_NAME = "name", "De naam van het type"

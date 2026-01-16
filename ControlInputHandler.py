@@ -183,9 +183,6 @@ class ControlInputHandler:
     async def set_column_name_in_cfg(self, user_input):
         await self.set_field_in_cfg(CfgFields.COLUMN_NAME.value, user_input, Validations.TEXT)
 
-    async def set_header_in_cfg(self, user_input):
-        await self.set_field_in_cfg(CfgFields.FILE_HAS_HEADER.value, user_input, Validations.TEXT)
-
     async def start_modify_field(self, user_input):
         chosen_field = CfgFields.from_any(user_input)
         existing_config = Model.get().active_config

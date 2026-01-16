@@ -62,9 +62,8 @@ class ViewInputPrompter:
 
         values = []
         for i, row in enumerate(ws):
-            if Model.get().active_config[Constants.CfgFields.FILE_HAS_HEADER.value] == "ja":
-                if i == 0:
-                    continue
+            if i == 0:
+                continue #skip header
             value = row[column].value
             if value not in values and value is not None:
                 values.append(value)

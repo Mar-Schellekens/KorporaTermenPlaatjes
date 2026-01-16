@@ -93,10 +93,7 @@ def get_cell_color(cell, workbook):
 def get_all_colors_in_column(sheet, col_index, workbook):
     """Returns a set of all unique colors in a column."""
     colors = []
-
-    min_row = 1
-    if Model.get().active_config[CfgFields.FILE_HAS_HEADER.value]:
-        min_row = 2
+    min_row = 2
 
     for row in sheet.iter_rows(min_row = min_row):
 
