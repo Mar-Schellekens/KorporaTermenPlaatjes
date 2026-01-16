@@ -8,7 +8,10 @@ def classify_by_color(typ, cell, column_index):
         if str(cell[column_index].fill.start_color.theme) == typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
             return True
     elif typ[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE] == "rgb":
-        if cell[column_index].fill.start_color.rgb == typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
+        if typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR] == "geen kleur":
+            if cell[column_index].fill.patternType is None:
+                return True
+        elif cell[column_index].fill.start_color.rgb == typ[CfgFields.TYPES_EXCEL_FILE_CELL_COLOR]:
             return True
     return False
 

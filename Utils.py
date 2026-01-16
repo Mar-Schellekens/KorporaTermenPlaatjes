@@ -18,6 +18,19 @@ def convert_excel_colors_to_string(list_of_color_tuples):
     hex_colors = [hex_color for _, _, hex_color in list_of_color_tuples]
     return strings, hex_colors
 
+def best_text_color(bg_hex: str) -> str:
+    """Return 'black' or 'white' depending on background brightness."""
+    bg_hex = bg_hex.lstrip("#")
+
+    r = int(bg_hex[0:2], 16)
+    g = int(bg_hex[2:4], 16)
+    b = int(bg_hex[4:6], 16)
+
+    # perceived brightness (WCAG formula)
+    brightness = (0.299*r + 0.587*g + 0.114*b)
+
+    return "black" if brightness > 186 else "white"
+
 def load_excel_file(file_name):
     workbook = load_workbook(file_name)
     worksheet = workbook.active

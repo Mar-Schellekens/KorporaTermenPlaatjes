@@ -1,4 +1,5 @@
 #This is an interface between control and view, part of the control layer, and should never import ViewInputPrompter to prevent circular import.
+import re
 from pathlib import Path
 from tkinter import filedialog
 from typing import List
@@ -29,6 +30,9 @@ class ControlInputHandler:
 
 
     def validation_color_type(self, user_input):
+        #remove color formatting
+        user_input = re.sub(r"\[.*?\]", "", user_input)
+
         config = self.model.get_active_cfg()
         file_name = config[CfgFields.INPUT_FILE_NAME]
         workbook, worksheet = load_excel_file(file_name)

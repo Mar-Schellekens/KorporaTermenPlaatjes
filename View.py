@@ -7,6 +7,8 @@ from textual.widgets import Static, ListView, ListItem, Label, ProgressBar, Rich
 from Constants import ViewState
 from Model import Model
 from Singleton import Singleton
+from Utils import best_text_color
+
 
 class NumberInput(Input):
     """Allow only digits."""
@@ -85,6 +87,8 @@ class View(App):
         if colors is not None:
             if len(colors) == len(lst):
                 self.list_colors = colors
+        else:
+            self.list_colors = None
         self.callback = callback
         self.state = ViewState.LIST
 
@@ -135,7 +139,7 @@ class View(App):
     def get_list_items(self):
         if self.list_colors is not None:
             if len(self.list_colors) == len(self.list):
-                return [ListItem(Label(f"[{color}]{opt}[/]"), name=opt) for opt, color in zip(self.list, self.list_colors)]
+                return [ListItem(Label(f"[{best_text_color(color)} on {color}]{opt}[/]"), name=opt) for opt, color in zip(self.list, self.list_colors)]
 
         return [ListItem(Label(opt), name=opt) for opt in self.list]
 

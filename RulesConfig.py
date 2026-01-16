@@ -1,5 +1,8 @@
 import xml.etree.ElementTree as ET
 
+from Constants import CfgFields
+from Model import Model
+
 
 def apply_tint(rgb, tint):
     """
@@ -64,6 +67,8 @@ def get_cell_color(cell, workbook):
     color = cell.fill.start_color
     if color is None:
         return None
+    if cell.fill.patternType is None:
+        return "rgb", "geen kleur", "#FFFFFF"
 
     if color.type == "rgb":
         return "rgb", color.rgb, f"#{color.rgb[-6:]}"
@@ -89,7 +94,12 @@ def get_all_colors_in_column(sheet, col_index, workbook):
     """Returns a set of all unique colors in a column."""
     colors = []
 
-    for row in sheet.iter_rows():
+    min_row = 1
+    if Model.get().active_config[CfgFields.FILE_HAS_HEADER]:
+        min_row = 2
+
+    for row in sheet.iter_rows(min_row = min_row):
+
         cell = row[col_index]
         type, value, hex_col = get_cell_color(cell, workbook)
 
