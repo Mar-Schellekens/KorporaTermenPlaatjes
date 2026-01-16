@@ -1,5 +1,8 @@
 from itertools import permutations
+
+from Exceptions import TooSmallException
 from Utils import add_base_path
+from View import View
 
 wordlist = add_base_path("wordlist.txt")
 wordlist_user = add_base_path("wordlist_user.txt")
@@ -47,6 +50,9 @@ def split_chunks(word, font, max_width):
         if width < max_width:
             longest_possible_compound = compound
             break
+
+    if longest_possible_compound == "":
+        raise TooSmallException("De geconfigureerde breedte is te klein! Vergroot de breedte, of verklein de tekstgrootte of marge")
 
     chunks = [longest_possible_compound]
     chunks.extend(word.split(longest_possible_compound))

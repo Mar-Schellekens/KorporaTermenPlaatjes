@@ -62,8 +62,11 @@ class Controller:
                 with open(self.model.active_config_path) as f:
                     cfg = json.load(f)
                 termen = load_terms(cfg)
-                await self.prompts.show_progress_bar(self.state_machine)
-                await self.generate_images(termen)
+                if termen is not None:
+                    await self.prompts.show_progress_bar(self.state_machine)
+                    await self.generate_images(termen)
+                else:
+                    await self.state_machine()
 
     async def generate_images(self, termen):
         with open(self.model.active_config_path) as f:
@@ -119,6 +122,7 @@ class Controller:
 
         save_config(self.model.active_config, self.model.get_active_cfg_name())
         self.model.current_state_machine = StateMachines.MAIN_MENU
+        View.get().set_success_message(f"Configuratie {Model.get().get_active_cfg_name()} is opgeslagen!")
         await self.state_machine()
 
     async def config_type_state_machine(self):

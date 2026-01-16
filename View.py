@@ -4,7 +4,9 @@ from textual.app import App, ComposeResult
 from textual.reactive import reactive
 from textual.widgets import Static, ListView, ListItem, Label, ProgressBar, RichLog, Input, Button
 
-from Constants import ViewState
+import Constants
+from Constants import ViewState, StateMachines
+from Exceptions import TooSmallException
 from Model import Model
 from Singleton import Singleton
 from Utils import best_text_color
@@ -134,6 +136,8 @@ class View(App):
                                + "Traceback:" + trcbck)
 
     async def on_error(self, error:Exception) -> None:
+        if error is TooSmallException:
+            self.set_error_message(str(error))
         await self.set_exception(error, traceback.print_exc())
 
     def get_list_items(self):
@@ -197,6 +201,10 @@ class View(App):
        try:
             selected = event.item.query_one(Label).content
             await self.callback(selected)
+       except TooSmallException as e:
+           self.set_error_message(str(e))
+           Model.get().current_statemachine = Constants.StateMachines.MAIN_MENU
+           await self.controller.state_machine()
        except Exception as e:
             await self.set_exception(e, traceback.format_exc())
             await self.refresh_screen()

@@ -1,7 +1,10 @@
 import pandas
 from openpyxl import load_workbook
-from Constants import CfgFields, TypesMethod
+from Constants import CfgFields, TypesMethod, StateMachines
+from Model import Model
 from Term import Term
+from View import View
+
 
 def classify_by_color(typ, cell, column_index):
     if typ[CfgFields.TYPES_EXCEL_FILE_COLOR_TYPE.value] == "theme":
@@ -35,7 +38,13 @@ def classify_cell(cell, types):
 
 
 def load_terms(cfg):
-    df = pandas.read_excel(cfg[CfgFields.INPUT_FILE_NAME.value])
+    try:
+        df = pandas.read_excel(cfg[CfgFields.INPUT_FILE_NAME.value])
+    except FileNotFoundError as e:
+        View.get().set_error_message(str(e))
+        Model.current_state_machine = StateMachines.MAIN_MENU
+        return None
+
     termen = df[cfg[CfgFields.COLUMN_NAME.value]].values
     wb = load_workbook(cfg[CfgFields.INPUT_FILE_NAME.value])
     ws = wb.active
