@@ -1,0 +1,21 @@
+{
+  "input_file_name": "C:/Users/31616/Documents/ProgrammingProjects/KorporaTermenPlaatjes/input/categories.xlsx",
+  "column_name": "word",
+  "width": 512,
+  "height": 512,
+  "background_color": "#cecece",
+  "font": "arial",
+  "font_size": 64,
+  "margin": 12,
+  "types": [
+    {
+      "name": "groente",
+      "generated_image_text_color": "#00cc00",
+      "method": "celkleur",
+      "column": 4,
+      "excel_file_color_type": "rgb",
+      "excel_file_cell_color": "FF780373"
+    }
+  ],
+  "column_letter": "A"
+}
