@@ -8,7 +8,7 @@ import Constants
 
 def add_base_path(relative_path: str) -> Path:
     if getattr(sys, 'frozen', False):
-        base_path = Path(sys._MEIPASS) #ignore warning
+        base_path = Path(sys.executable).parent #ignore warning
     else:
         base_path = Path(__file__).parent
     return base_path / relative_path

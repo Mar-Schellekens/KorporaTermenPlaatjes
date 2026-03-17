@@ -1,3 +1,5 @@
+import math
+
 import pandas
 from openpyxl import load_workbook
 from Constants import CfgFields, TypesMethod, StateMachines
@@ -53,6 +55,12 @@ def load_terms(cfg):
 
     termObjects = []
     for term, color in zip(termen, colors):
+        #Empty cells in excel are for some reason float nans. Let's get rid of those
+        if isinstance(term, float):
+            if math.isnan(term):
+                continue
+
+        term = str(term)
         termObjects.append(Term(term, color))
 
     return termObjects
